@@ -174,6 +174,14 @@ details.adv .advbody{display:flex;flex-direction:column;gap:14px;padding-top:14p
 .kbwrap{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;direction:ltr}
 .kbwrap .kbScroll{flex-basis:100%;order:-1}
 .kbwrap .oct{min-width:56px}
+.attack{display:flex;flex-direction:column;gap:12px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:14px}
+#atkBox{display:flex;flex-direction:column;gap:8px;padding-top:10px;border-top:1px solid var(--scr-line);margin-top:8px}
+#atk{display:block;width:100%;height:120px}
+.atkhead{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;font-size:13px}
+.atkhead .btn{background:transparent;color:var(--scr-ink);border-color:var(--scr-line)}
+.atkhead .btn.on{background:var(--scr-ink);color:var(--scr-bg);border-color:var(--scr-ink)}
+.atkleg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--scr-wave)}
+.atkleg i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-inline-end:5px}
 .lastnote{font-family:var(--f-mono);font-size:13px;color:var(--muted);min-height:20px}
 .btn[aria-pressed=true]{background:var(--primary);color:var(--primary-ink);border-color:var(--primary)}
 .mono{font-family:var(--f-mono);font-size:13px}
@@ -221,6 +229,16 @@ details.adv .advbody{display:flex;flex-direction:column;gap:14px;padding-top:14p
     <div class="screen">
       <div class="waveScroll" id="waveScroll"><canvas id="wave" aria-label="צורת הגל עם הקטעים שזוהו"></canvas></div>
       <div class="selbar" id="selbar"></div>
+      <div id="atkBox" hidden>
+        <div class="atkhead"><span id="atkTitle"></span><span class="row" style="gap:6px"><button class="btn sm" type="button" id="abRaw">▶ לפני</button><button class="btn sm" type="button" id="abProc">▶ אחרי</button></span></div>
+        <canvas id="atk" aria-label="הגדלה של תחילת הדגימה"></canvas>
+        <div class="atkleg"><span><i style="background:var(--scr-wave)"></i>ההקלטה המקורית</span><span><i id="atkSw" style="background:var(--accent)"></i>הדגימה אחרי עיבוד</span><span id="atkNote"></span></div>
+      </div>
+    </div>
+    <div class="attack">
+      <div class="row" style="justify-content:space-between"><span class="label">כניסת הדגימה</span><span class="chips" id="clickChips"></span></div>
+      <div class="grid" id="atkCtl"></div>
+      <p class="hint">כאן מתקנים רק את הקצה הטכני, כדי שלא יהיה קליק של חיתוך. את האופי של המכה עדיף לעצב בכלי, ב-Attack של ה-Amp EG. מדורג = כניסה רכה בשכבה החלשה, וכמעט חדה בחזקה, כדי לשמור על הנקישה של המכה החזקה.</p>
     </div>
     <div class="row"><button class="btn sm" id="autoThr" type="button">כיוון ספים אוטומטי לפי הרעש בהקלטה</button><span class="info" id="floorInfo"></span></div>
     <details class="adv" id="detAdv"><summary>כיוון ידני <span class="cnt" id="detCnt"></span></summary><div class="advbody"><div class="grid" id="detCtl"></div></div></details>
@@ -301,6 +319,8 @@ details.adv .advbody{display:flex;flex-direction:column;gap:14px;padding-top:14p
       <button class="btn" id="sustainBtn" type="button" aria-pressed="false">פדל החזקה</button>
       <button class="btn" id="midiBtn" type="button">חיבור מקלדת MIDI</button>
     </div>
+    <div class="row"><span class="label">כניסת הדגימה:</span><div class="seg" role="group" aria-label="השוואת כניסה"><button type="button" data-ab="proc">אחרי עיבוד</button><button type="button" data-ab="raw">מקורית, בלי תיקון</button></div></div>
+    <div class="chips"><span class="chip" id="playSrc"></span></div>
     <div class="grid" id="fixedVelBox" hidden><div class="ctl"><label for="fvel"><span>ולוסיטי</span><output id="fvelO" class="ltr"></output></label><input type="range" id="fvel" min="1" max="127" step="1"></div></div>
     <div class="kbwrap">
       <button class="btn sm oct" id="octL" type="button" aria-label="אוקטבה למטה">◀ אוקטבה</button>
@@ -359,22 +379,22 @@ const ICONS={
 };
 const PRESETS={
   piano:{label:'פסנתר',sub:'3 שכבות, זנב ארוך',name:'PIANO',
-    det:{thrRel:-42,offRel:-62,minSil:220,preroll:6,fadeOut:60,maxLen:14,reattack:true},
+    det:{thrRel:-42,offRel:-62,minSil:220,preroll:6,fadeOut:60,maxLen:14,reattack:true,fadeIn:1.5,inScope:"scaled",zeroX:true},
     plan:{mode:'plan',layers:3,vsplit:'55,95',sortLoud:true},norm:{mode:'trend',strength:100,maxCorr:6,peak:-1},exp:{chans:'keep'}},
   bass:{label:'באס',sub:'2 שכבות, מונו',name:'BASS',
-    det:{thrRel:-40,offRel:-58,minSil:200,preroll:4,fadeOut:40,maxLen:8,reattack:true},
+    det:{thrRel:-40,offRel:-58,minSil:200,preroll:4,fadeOut:40,maxLen:8,reattack:true,fadeIn:1,inScope:"all",zeroX:true},
     plan:{mode:'plan',layers:2,vsplit:'80',sortLoud:true},norm:{mode:'trend',strength:100,maxCorr:6,peak:-1},exp:{chans:'mono'}},
   guitar:{label:'גיטרה',sub:'2 שכבות, פריטה וזנב',name:'GUITAR',
-    det:{thrRel:-42,offRel:-60,minSil:200,preroll:5,fadeOut:50,maxLen:8,reattack:true},
+    det:{thrRel:-42,offRel:-60,minSil:200,preroll:5,fadeOut:50,maxLen:8,reattack:true,fadeIn:1,inScope:"scaled",zeroX:true},
     plan:{mode:'plan',layers:2,vsplit:'80',sortLoud:true},norm:{mode:'trend',strength:100,maxCorr:6,peak:-1},exp:{chans:'keep'}},
   winds:{label:'נשיפה ובראס',sub:'2 שכבות, התקפה רכה',name:'BRASS',
-    det:{thrRel:-40,offRel:-55,minSil:260,preroll:10,fadeOut:90,maxLen:6,reattack:false},
+    det:{thrRel:-40,offRel:-55,minSil:260,preroll:10,fadeOut:90,maxLen:6,reattack:false,fadeIn:4,inScope:"all",zeroX:true},
     plan:{mode:'plan',layers:2,vsplit:'80',sortLoud:true},norm:{mode:'trend',strength:80,maxCorr:5,peak:-1},exp:{chans:'mono'}},
   drums:{label:'תופים',sub:'3 מכות לכל פד',name:'DRUMS',
-    det:{thrRel:-36,offRel:-60,minSil:120,preroll:2,fadeOut:30,maxLen:4,reattack:true},
+    det:{thrRel:-36,offRel:-60,minSil:120,preroll:2,fadeOut:30,maxLen:4,reattack:true,fadeIn:0.3,inScope:"all",zeroX:true},
     plan:{mode:'drum',layers:3,vsplit:'55,95',sortLoud:true},norm:{mode:'natural',strength:100,maxCorr:6,peak:-1},exp:{chans:'keep'}},
   synth:{label:'סינת׳ ופדים',sub:'שכבה אחת, זנב ארוך',name:'SYNTH',
-    det:{thrRel:-40,offRel:-60,minSil:300,preroll:10,fadeOut:120,maxLen:10,reattack:false},
+    det:{thrRel:-40,offRel:-60,minSil:300,preroll:10,fadeOut:120,maxLen:10,reattack:false,fadeIn:3,inScope:"all",zeroX:true},
     plan:{mode:'plan',layers:1,vsplit:'',sortLoud:false},norm:{mode:'trend',strength:100,maxCorr:6,peak:-1},exp:{chans:'keep'}}
 };
 
@@ -484,11 +504,12 @@ function segment(){
   const pre=Math.round(d.preroll/1000*sr), fo=Math.round(d.fadeOut/1000*sr), maxF=Math.round(d.maxLen*sr), minF=d.minLen/1000*sr;
   const segs=[]; let prevE=0;
   raw.forEach(([a,z],i)=>{
-    const onF=a*B, s=Math.max(prevE,onF-pre); let e=Math.min(S.src.len,(z+1)*B+fo);
+    const onF=a*B, s0=Math.max(prevE,onF-pre); let s=s0, e=Math.min(S.src.len,(z+1)*B+fo);
+    if(d.zeroX){ const w=Math.round(0.003*sr), ch=S.src.ch; let bv=1e9; for(let i=Math.max(prevE,s0-w);i<=s0;i++){ let v=0; for(const c of ch) v+=c[i]<0?-c[i]:c[i]; if(v<bv){bv=v;s=i;} } }
     if(raw[i+1]) e=Math.min(e,raw[i+1][0]*B-pre);
     e=Math.min(e,s+maxF);
     if(e-onF<minF) return;
-    segs.push({s,on:onF,e,ob:a,keep:!near(S.excluded,a,tol)}); prevE=e;
+    segs.push({s,s0,on:onF,e,ob:a,keep:!near(S.excluded,a,tol)}); prevE=e;
   });
   S.segs=segs;
 }
@@ -498,6 +519,8 @@ function measure(seg){
   const ae=Math.min(seg.e,seg.on+Math.round(0.25*sr));
   for(const c of ch){ for(let i=seg.on;i<ae;i++){ ss+=c[i]*c[i]; n++; } }
   seg.peak=dbf(pk); seg.att=n?10*Math.log10(ss/n+1e-20):-200; seg.dur=(seg.e-seg.s)/sr;
+  let j=0, pn=0; for(const c of ch){ const v=Math.abs(c[seg.s]); if(v>j) j=v; for(let i=seg.s;i<seg.on;i++){ const q=c[i]<0?-c[i]:c[i]; if(q>pn) pn=q; } }
+  seg.jump=dbf(j)-seg.peak; seg.preNoise=dbf(pn)-seg.peak;
   seg.f0=pitchOf(seg); seg.midiF=seg.f0?69+12*Math.log2(seg.f0/440):null;
 }
 function pitchOf(seg){
@@ -593,18 +616,23 @@ function normalize(){
 }
 
 /* ---------- processed sample ---------- */
-function renderSeg(it,mono){
-  const {ch,sr}=S.src, seg=it.seg, n=seg.e-seg.s, g=lin(it.gain||0);
-  const fi=Math.min(n>>2,Math.round(0.0015*sr)), fo=Math.min(n>>1,Math.round(S.det.fadeOut/1000*sr));
-  let out=ch.map(c=>{ const o=new Float32Array(n); for(let i=0;i<n;i++) o[i]=c[seg.s+i]*g; return o; });
+function fadeInFor(layer){
+  const d=S.det, N=S.plan.layers; if(!(d.fadeIn>0)) return 0;
+  if(d.inScope==='scaled'&&N>1) return Math.max(0.3,d.fadeIn*(N-(layer||1))/(N-1));
+  return d.fadeIn;
+}
+function renderSeg(it,mono,raw){
+  const {ch,sr}=S.src, seg=it.seg, st=raw?seg.s0:seg.s, n=seg.e-st, g=lin(it.gain||0);
+  const fi=raw?0:Math.min(n>>2,Math.round(fadeInFor(it.layer)/1000*sr)), fo=Math.min(n>>1,Math.round(S.det.fadeOut/1000*sr));
+  let out=ch.map(c=>{ const o=new Float32Array(n); for(let i=0;i<n;i++) o[i]=c[st+i]*g; return o; });
   if(mono&&out.length>1){ const m=new Float32Array(n); for(let i=0;i<n;i++) m[i]=(out[0][i]+out[1][i])*0.5; out=[m]; }
-  out.forEach(o=>{ for(let i=0;i<fi;i++) o[i]*=i/fi; for(let i=0;i<fo;i++){ o[n-1-i]*=0.5-0.5*Math.cos(Math.PI*i/fo); } });
+  out.forEach(o=>{ for(let i=0;i<fi;i++) o[i]*=0.5-0.5*Math.cos(Math.PI*i/fi); for(let i=0;i<fo;i++){ o[n-1-i]*=0.5-0.5*Math.cos(Math.PI*i/fo); } });
   return out;
 }
-function playItem(it){ stopAll(); playChans(renderSeg(it,false),S.src.sr); }
+function playItem(it,raw){ stopAll(); playChans(renderSeg(it,false,raw||S.play.ab==='raw'),S.src.sr); }
 function playRow(m){
   stopAll(); const g=S.items.filter(i=>i.midi===m&&!i.dup).sort((a,b)=>a.layer-b.layer);
-  let t=0; g.forEach(it=>{ const c=renderSeg(it,false); const cut=Math.min(c[0].length,Math.round(1.1*S.src.sr)); const f=Math.min(cut>>1,Math.round(0.08*S.src.sr)); const cc=c.map(x=>{const y=x.slice(0,cut); for(let i=0;i<f;i++) y[cut-1-i]*=i/f; return y;}); playChans(cc,S.src.sr,t); t+=1.2; });
+  let t=0; g.forEach(it=>{ const c=renderSeg(it,false,S.play.ab==='raw'); const cut=Math.min(c[0].length,Math.round(1.1*S.src.sr)); const f=Math.min(cut>>1,Math.round(0.08*S.src.sr)); const cc=c.map(x=>{const y=x.slice(0,cut); for(let i=0;i<f;i++) y[cut-1-i]*=i/f; return y;}); playChans(cc,S.src.sr,t); t+=1.2; });
 }
 
 /* ---------- controls with "changed from preset" indicator ---------- */
@@ -639,6 +667,16 @@ function buildDet(){
   w.innerHTML='<input type="checkbox" id="reatt"><span>לזהות מכה חדשה גם בלי שקט לפניה</span>';
   h.appendChild(w); const cb=w.querySelector('input'); cb.onchange=()=>{d.reattack=cb.checked; reanalyzeSoon(); countChanges();};
   syncs.push(()=>cb.checked=d.reattack);
+}
+function buildAtk(){
+  const h=$('#atkCtl'), d=S.det, df=k=>()=>P().det[k];
+  slider(h,d,'fadeIn','כניסה רכה (fade-in)',0,10,0.1,v=>Number(v).toFixed(1)+' ms',()=>refresh(false),df('fadeIn'));
+  const w=document.createElement('div'); w.className='ctl';
+  w.innerHTML='<label for="inScope"><span>איך להחיל על השכבות</span></label><select id="inScope"><option value="scaled">מדורג: רכה בחלשה, חדה בחזקה</option><option value="all">זהה בכל השכבות</option></select>';
+  h.appendChild(w); const sel=w.querySelector('select'); sel.onchange=()=>{ d.inScope=sel.value; refresh(false); }; syncs.push(()=>sel.value=d.inScope);
+  const c=document.createElement('label'); c.className='check';
+  c.innerHTML='<input type="checkbox" id="zeroX"><span>להתחיל בנקודת אפס של הגל (מונע קפיצה בתחילת הקובץ)</span>';
+  h.appendChild(c); const cb=c.querySelector('input'); cb.onchange=()=>{ d.zeroX=cb.checked; segAndMeasure(); refresh(); }; syncs.push(()=>cb.checked=d.zeroX);
 }
 function buildNorm(){
   const h=$('#normCtl'), n=S.norm, df=k=>()=>P().norm[k]; h.innerHTML=''; normSyncs=[];
@@ -739,15 +777,15 @@ function drawWave(){
   g.fillStyle=css('--scr-wave'); g.beginPath();
   const cols=Math.ceil(W); for(let x=0;x<cols;x++){ const b0=Math.floor(x/W*nb), b1=Math.max(b0+1,Math.floor((x+1)/W*nb)); let m=-200; for(let b=b0;b<b1&&b<nb;b++) if(db[b]>m)m=db[b]; const a=Math.max(0,lin(m-top)); g.rect(x,mid-a*amp,1,Math.max(1,2*a*amp)); }
   g.fill();
-  g.font='500 10.5px "IBM Plex Mono", monospace'; g.textBaseline='top';
+  g.font='500 10.5px "IBM Plex Mono", monospace'; g.textBaseline='top'; g.direction='ltr'; g.textAlign='left';
   S.segs.forEach(s=>{ const it=byseg.get(s); const w=X(s.e)-X(s.s); let t=it?nName(it.midi)+' V'+it.layer:(s.keep?'?':'×'); if(w<g.measureText(t).width+4) t=it?'V'+it.layer:t; if(w<14) return;
     g.fillStyle=it&&s.keep?layerColor(it.layer,N):css('--scr-wave'); g.fillText(t,X(s.s)+2,1); });
 }
 function waveClick(ev){
   if(!S.src) return; const cv=$('#wave'), r=cv.getBoundingClientRect(); const f=(ev.clientX-r.left)/r.width*S.src.len;
   let best=-1,bd=1e18; S.segs.forEach((s,k)=>{ const d=f<s.s?s.s-f:f>s.e?f-s.e:0; if(d<bd){bd=d;best=k;} });
-  S.sel=best; renderSel(); drawWave();
-  const s=S.segs[best]; const it=S.items.find(i=>i.seg===s); if(s) { stopAll(); playChans(renderSeg(it||{seg:s,gain:0},false),S.src.sr); }
+  S.sel=best; renderSel(); drawWave(); drawAtk();
+  const s=S.segs[best]; const it=S.items.find(i=>i.seg===s); if(s) { stopAll(); playChans(renderSeg(it||{seg:s,gain:0,layer:1},false),S.src.sr); }
 }
 function renderSel(){
   const bar=$('#selbar'), s=S.segs[S.sel];
@@ -757,11 +795,37 @@ function renderSel(){
   bar.innerHTML=`<span>קטע ${S.sel+1} · ${s.dur.toFixed(2)} שנ׳ · ${it?'<span class="ltr">'+nName(it.midi)+' V'+it.layer+'</span>':(s.keep?'לא שויך':'מוחרג')} · <span class="ltr">${det}</span></span>`;
   const mk=(t,fn)=>{ const b=document.createElement('button'); b.type='button'; b.className='btn sm'; b.textContent=t; b.onclick=fn; bar.appendChild(b); };
   const tol=Math.round(0.05*S.src.sr/B);
-  mk('השמעה',()=>{ stopAll(); playChans(renderSeg(it||{seg:s,gain:0},false),S.src.sr); });
   mk(s.keep?'החרגה':'החזרה',()=>{ if(s.keep) S.excluded.push(s.ob); else S.excluded=S.excluded.filter(x=>Math.abs(x-s.ob)>tol); segAndMeasure(); refresh(); });
   if(S.segs[S.sel+1]) mk('איחוד עם הבא',()=>{ S.merges.push(s.ob); segAndMeasure(); refresh(); });
   if(near(S.merges,s.ob,tol)) mk('ביטול איחוד',()=>{ S.merges=S.merges.filter(x=>Math.abs(x-s.ob)>tol); segAndMeasure(); refresh(); });
 }
+
+/* ---------- attack close-up ---------- */
+function drawAtk(){
+  const box=$('#atkBox'), s=S.segs[S.sel]; if(!s||!S.src){ box.hidden=true; return; } box.hidden=false;
+  const it=S.items.find(i=>i.seg===s)||{seg:s,gain:0,layer:1}, N=S.plan.layers;
+  const {ch,sr,len}=S.src, a=Math.max(0,Math.min(s.s0,s.s)-Math.round(0.002*sr)), b=Math.min(len,s.on+Math.round(0.02*sr));
+  const cv=$('#atk'), W=cv.clientWidth||cv.parentElement.clientWidth, H=120, dpr=window.devicePixelRatio||1;
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H); g.direction='ltr'; g.textAlign='left';
+  const raw=new Float32Array(b-a); for(let i=a;i<b;i++){ let v=0; for(const c of ch) v+=c[i]; raw[i-a]=v/ch.length; }
+  const proc=renderSeg(it,true,false)[0], gl=lin(it.gain||0);
+  let mx=1e-9; for(const v of raw){ const q=v<0?-v:v; if(q>mx) mx=q; }
+  const X=f=>(f-a)/(b-a)*W, mid=H/2+6, A=(H/2-14)/mx;
+  const lane=(get,from,to,col,w)=>{ g.strokeStyle=col; g.lineWidth=w; g.beginPath(); let first=true;
+    const per=(b-a)/W; for(let x=Math.floor(X(from));x<Math.ceil(X(to));x++){ const i0=Math.floor(a+x*per), i1=Math.max(i0+1,Math.floor(a+(x+1)*per)); let lo=1e9,hi=-1e9; for(let i=Math.max(from,i0);i<Math.min(to,i1);i++){ const v=get(i); if(v<lo)lo=v; if(v>hi)hi=v; } if(lo>hi) continue;
+      if(first){ g.moveTo(x,mid-hi*A); first=false; } else g.lineTo(x,mid-hi*A); g.lineTo(x,mid-lo*A); } g.stroke(); };
+  g.strokeStyle=css('--scr-grid'); g.lineWidth=1; g.beginPath(); g.moveTo(0,mid); g.lineTo(W,mid); g.stroke();
+  lane(i=>raw[i-a],a,b,css('--scr-wave'),1);
+  const col=css('--accent'); lane(i=>proc[i-s.s]/gl,s.s,Math.min(b,s.s+proc.length),col,1.6);
+  const vline=(f,c,dash,label)=>{ g.setLineDash(dash); g.strokeStyle=c; g.lineWidth=1; g.beginPath(); g.moveTo(X(f),12); g.lineTo(X(f),H); g.stroke(); g.setLineDash([]); g.fillStyle=c; g.font='500 10.5px Assistant, sans-serif'; g.fillText(label,Math.max(2,Math.min(W-g.measureText(label).width-2,X(f)+3)),10); };
+  if(s.s0!==s.s) vline(s.s0,css('--scr-wave'),[3,3],'חיתוך מקורי');
+  vline(s.s,col,[],'התחלה'); vline(s.on,css('--scr-ink'),[2,4],'מכה');
+  const fi=fadeInFor(it.layer), shift=(s.s0-s.s)/sr*1000;
+  $('#atkTitle').innerHTML=`הגדלה של ${((b-a)/sr*1000).toFixed(0)}ms ראשונים${it.midi!=null?` · <span class="ltr">${nName(it.midi)} V${it.layer}</span>`:''}`;
+  $('#atkNote').innerHTML=`<span class="ltr">fade-in ${fi.toFixed(1)}ms</span>${S.det.zeroX&&shift>0.01?` · ההתחלה הוזזה <span class="ltr">${shift.toFixed(2)}ms</span> לנקודת אפס`:''}`;
+}
+function abPlay(raw){ const s=S.segs[S.sel]; if(!s) return; const it=S.items.find(i=>i.seg===s)||{seg:s,gain:0,layer:1}; stopAll(); playChans(renderSeg(it,false,raw),S.src.sr);
+  $('#abRaw').classList.toggle('on',raw); $('#abProc').classList.toggle('on',!raw); }
 
 /* ---------- status, plot, grid, map ---------- */
 function renderStatus(){
@@ -799,6 +863,18 @@ function renderPlot(){
   for(let l=1;l<=N;l++){ const v=velRanges(N)[l-1]; lg.insertAdjacentHTML('beforeend',`<span><span class="sw" style="background:var(${layerVar(l,N)})"></span><span class="ltr">V${l} · ${v[0]}–${v[1]}</span></span>`); }
   lg.insertAdjacentHTML('beforeend','<span>עיגול חלול: לפני · מלא: אחרי</span>');
 }
+function clickRisk(it){
+  const s=it.seg; if(s.preNoise>-30) return 'pre';
+  if(fadeInFor(it.layer)<0.3&&s.jump>-45) return 'jump'; return '';
+}
+function renderClicks(){
+  const h=$('#clickChips'); h.innerHTML=''; const its=S.items.filter(i=>!i.dup);
+  const j=its.filter(i=>clickRisk(i)==='jump').length, pre=its.filter(i=>clickRisk(i)==='pre').length;
+  const add=(t,c)=>h.insertAdjacentHTML('beforeend',`<span class="chip ${c}">${t}</span>`);
+  if(!j&&!pre) add('אין סימני קליק ✓','ok');
+  if(j) add(`${j} דגימות עלולות להתחיל בקליק`,'bad');
+  if(pre) add(`${pre} דגימות עם צליל לפני המכה`,'warn');
+}
 const PLAY='<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>';
 function renderGrid(){
   const h=$('#ngrid'), N=S.plan.layers; h.innerHTML='';
@@ -821,6 +897,7 @@ function renderGrid(){
         else if(i.cents!=null&&Math.abs(i.cents)>=15) badges.push(`<span class="badge warn">${fmt(i.cents,0,true)}¢</span>`);
         if(i.dup) badges.push('<span class="badge warn">כפול</span>');
         if(i.seg.peak+i.gain>-0.05) badges.push('<span class="badge bad">קליפ</span>');
+        const cr=clickRisk(i); if(cr) badges.push(`<span class="badge ${cr==='jump'?'bad':'warn'}">${cr==='jump'?'קליק':'זנב קודם'}</span>`);
         const wrap=document.createElement('div'); wrap.className='cell';
         wrap.innerHTML=`<button class="play" type="button" aria-label="נגן ${nName(m)} V${l}">${PLAY}</button><div class="vals"><span>${fmt(i.seg.att+i.gain,1)} dB</span><span class="g">${fmt(i.gain,1,true)} dB</span></div>${badges.join('')}`;
         wrap.querySelector('button').onclick=()=>playItem(i); c.appendChild(wrap);
@@ -865,13 +942,13 @@ function renderSrc(){
 }
 
 /* ---------- pipeline ---------- */
-function segAndMeasure(){ segment(); S.segs.forEach(measure); if(S.sel>=S.segs.length) S.sel=-1; }
+function segAndMeasure(){ segment(); S.segs.forEach(measure); if(S.sel>=S.segs.length||S.sel<0) S.sel=S.segs.length?0:-1; }
 function analyzeAll(){ analyzeEnv(); segAndMeasure(); renderSrc(); syncPlanUI(); refresh(); }
 function refresh(rebuildGaps=true){
   if(!S.src) return;
   assign(); normalize(); if(rebuildGaps) buildGaps();
   bufCache.clear();
-  renderStatus(); drawWave(); renderSel(); renderPlot(); renderGrid(); renderRangeKb(); renderPlayKb(); renderMap(); renderExportInfo();
+  renderStatus(); drawWave(); renderSel(); drawAtk(); renderClicks(); renderPlaySrc(); renderPlot(); renderGrid(); renderRangeKb(); renderPlayKb(); renderMap(); renderExportInfo();
 }
 
 /* ---------- export ---------- */
@@ -1002,9 +1079,9 @@ function autoPlan(quiet){
 }
 
 /* ---------- playable keyboard ---------- */
-S.play={vmode:'pos',vel:100,sustain:false};
+S.play={vmode:'pos',vel:100,sustain:false,ab:'proc'};
 const bufCache=new Map(), voices=new Map(), held=new Set();
-function itemBuf(it){ let b=bufCache.get(it); if(!b){ const ch=renderSeg(it,false); b=ac().createBuffer(ch.length,ch[0].length,S.src.sr); ch.forEach((d,i)=>b.copyToChannel(d,i)); bufCache.set(it,b); } return b; }
+function itemBuf(it){ const raw=S.play.ab==='raw'; const key=raw?it.seg:it; let b=bufCache.get(key); if(!b){ const ch=renderSeg(it,false,raw); b=ac().createBuffer(ch.length,ch[0].length,S.src.sr); ch.forEach((d,i)=>b.copyToChannel(d,i)); bufCache.set(key,b); } return b; }
 function pickItem(m,vel){
   const its=S.items.filter(i=>!i.dup), N=S.plan.layers, vr=velRanges(N);
   let L=vr.findIndex(r=>vel>=r[0]&&vel<=r[1])+1; if(L<1) L=N;
@@ -1041,6 +1118,10 @@ function renderPlayKb(){
   if(fresh) requestAnimationFrame(()=>centerOn($('#playScroll'),el,Math.round((Math.min(...roots,60)+Math.max(...roots,60))/2)));
   syncVelUI();
 }
+function renderPlaySrc(){
+  $('#playSrc').innerHTML=S.isDemo?'מנגנים עכשיו את הקלטת הדוגמה (פסנתר סינתטי). אחרי שתטען הקלטה, המקלדת תנגן אותה.':`מנגנים עכשיו את ההקלטה שלך: <span class="ltr">${esc(S.src.name)}</span>`;
+  document.querySelectorAll('[data-ab]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ab===S.play.ab));
+}
 function syncVelUI(){
   const vm=S.play.vmode; document.querySelectorAll('[data-vm]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.vm===vm));
   $('#fixedVelBox').hidden=vm!=='fixed';
@@ -1070,7 +1151,7 @@ function autoThr(){
 }
 function init(){
   const ex=S.exp; Object.assign(S.det,P().det); Object.assign(S.plan,P().plan); Object.assign(S.norm,P().norm); Object.assign(ex,P().exp);
-  buildDet(); buildPlan(); buildNorm(); renderInsts(); syncNormMode();
+  buildDet(); buildAtk(); buildPlan(); buildNorm(); renderInsts(); syncNormMode(); syncs.forEach(f=>f());
   $('#file').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) loadFile(f); e.target.value=''; });
   $('#demoBtn').onclick=()=>{ makeDemo(); applyPreset('piano'); analyzeAll(); toast('הקלטת הדוגמה נטענה'); };
   $('#autoThr').onclick=autoThr;
@@ -1093,6 +1174,8 @@ function init(){
   $('#fvel').oninput=e=>{ S.play.vel=+e.target.value; syncVelUI(); };
   $('#sustainBtn').onclick=()=>setSustain(!S.play.sustain);
   $('#midiBtn').onclick=connectMidi;
+  $('#abRaw').onclick=()=>abPlay(true); $('#abProc').onclick=()=>abPlay(false);
+  document.querySelectorAll('[data-ab]').forEach(b=>b.onclick=()=>{ S.play.ab=b.dataset.ab; renderPlaySrc(); });
   $('#octL').onclick=()=>$('#playScroll').scrollBy({left:-41*7,behavior:'smooth'});
   $('#octR').onclick=()=>$('#playScroll').scrollBy({left:41*7,behavior:'smooth'});
   const down=new Set();
