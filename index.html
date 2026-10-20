@@ -117,7 +117,7 @@ details.adv>summary .cnt{font-weight:600;font-size:12px;color:var(--warn)}
 details.adv .advbody{display:flex;flex-direction:column;gap:14px;padding-top:14px}
 .screen{background:var(--scr-bg);border-radius:12px;padding:10px;color:var(--scr-ink)}
 .waveScroll{overflow-x:auto;overflow-y:hidden;border-radius:8px}
-#wave{display:block;height:150px;cursor:pointer;touch-action:pan-x}
+#wave{display:block;height:170px;cursor:pointer;touch-action:pan-x}
 .selbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13.5px;padding:10px 2px 2px;min-height:44px;color:var(--scr-ink)}
 .selbar .btn{background:transparent;color:var(--scr-ink);border-color:var(--scr-line)}
 .selbar .btn:hover{border-color:var(--scr-wave)}
@@ -426,6 +426,7 @@ button{touch-action:manipulation}
       <div class="grid" id="atkCtl"></div>
       <p class="hint">כאן מתקנים רק את הקצה הטכני, כדי שלא יהיה קליק של חיתוך. את האופי של המכה עדיף לעצב בכלי, ב-Attack של ה-Amp EG. מדורג = כניסה רכה בשכבה החלשה, וכמעט חדה בחזקה, כדי לשמור על הנקישה של המכה החזקה.</p>
     </div>
+    <p class="hint">רק מה שעובר את קו "סף מכה" בעלייה חדה נחשב מכה. רעש רקע שעולה לאט לא נספר. אפשר לגרור את שני הקווים למעלה ולמטה על צורת הגל.</p>
     <div class="row"><button class="btn sm" id="autoThr" type="button">כיוון ספים אוטומטי לפי הרעש בהקלטה</button><span class="info" id="floorInfo"></span></div>
     <details class="adv" id="detAdv"><summary>כיוון ידני <span class="cnt" id="detCnt"></span></summary><div class="advbody"><div class="grid" id="detCtl"></div></div></details>
   </section>
@@ -624,6 +625,7 @@ const PRESETS={
     plan:{mode:'plan',layers:1,vsplit:'',sortLoud:false},norm:{mode:'trend',strength:100,maxCorr:6,peak:-1},exp:{chans:'keep'}}
 };
 
+const RISE={piano:10,bass:8,guitar:8,winds:0,drums:14,synth:0}; Object.keys(PRESETS).forEach(k=>PRESETS[k].det.riseDb=RISE[k]);
 const S={
   src:null, isDemo:false, env:null, segs:[], items:[], extra:[], sel:-1, preset:'piano',
   excluded:[], merges:[],
@@ -657,8 +659,8 @@ async function loadFile(f){
     const ch=[]; for(let i=0;i<Math.min(2,buf.numberOfChannels);i++) ch.push(buf.getChannelData(i).slice());
     S.src={name:f.name,sr:buf.sampleRate,ch,len:buf.length}; S.isDemo=false;
     S.excluded=[]; S.merges=[]; S.sel=-1;
-    await nextFrame(); analyzeAll();
-    const msg=S.plan.mode==='plan'?autoPlan(true):'';
+    await nextFrame(); analyzeAll(); const nmsg=maybeAutoThr();
+    const msg=[nmsg,S.plan.mode==='plan'?autoPlan(true):''].filter(Boolean).join(' · ');
     toast('ההקלטה נטענה'+(msg?' · '+msg:''));
   }catch(e){
     renderSrc();
@@ -705,7 +707,7 @@ function analyzeEnv(){
   for(const c of ch){ for(let b=0;b<nb;b++){ let m=0; const e=Math.min(len,(b+1)*B); for(let i=b*B;i<e;i++){ const v=c[i]<0?-c[i]:c[i]; if(v>m)m=v; } if(m>env[b])env[b]=m; } }
   const db=new Float32Array(nb); for(let b=0;b<nb;b++) db[b]=dbf(env[b]);
   const sorted=Array.from(db).sort((a,b)=>a-b);
-  S.env={db,nb,floor:sorted[Math.floor(nb*0.1)],peak:sorted[nb-1]};
+  S.env={db,nb,floor:sorted[Math.floor(nb*0.1)],med:sorted[Math.floor(nb*0.5)],peak:sorted[nb-1]};
 }
 const near=(arr,v,tol)=>arr.some(x=>Math.abs(x-v)<=tol);
 function segment(){
@@ -713,14 +715,14 @@ function segment(){
   const on=peak+d.thrRel, off=peak+d.offRel;
   const silB=Math.max(1,Math.round(d.minSil/1000*bps)), reWin=Math.max(3,Math.round(0.12*bps)), reMin=Math.round(0.15*bps);
   const sm=new Float32Array(nb); for(let b=0;b<nb;b++){ let m=-200; for(let k=Math.max(0,b-3);k<=b;k++) if(db[k]>m)m=db[k]; sm[b]=m; }
-  const raw=[]; let inS=false,st=0,la=0;
+  const riseW=Math.max(2,Math.round(0.04*bps)); const raw=[]; let inS=false,st=0,la=0;
   for(let b=0;b<nb;b++){
     const v=db[b];
-    if(!inS){ if(v>=on){inS=true;st=b;la=b;} continue; }
+    if(!inS){ if(v>=on){ let ok=true; if(d.riseDb>0){ let mn=200; for(let k=Math.max(0,b-riseW);k<b;k++) if(db[k]<mn) mn=db[k]; ok=b===0?v>=peak-12:v-mn>=d.riseDb; } if(ok){inS=true;st=b;la=b;} } continue; }
     if(v>=off) la=b;
     if(d.reattack && b-st>reMin && v>=on){
-      let mn=200; for(let k=b-reWin;k<b-1;k++) if(sm[k]<mn) mn=sm[k];
-      if(sm[b]-mn>=d.reDb){ raw.push([st,b-1]); st=b; la=b; continue; }
+      const gate=d.riseDb>0, w=gate?riseW+1:reWin; let mn=200; for(let k=b-w;k<b-1;k++) if((gate?db[k]:sm[k])<mn) mn=gate?db[k]:sm[k];
+      if((gate?v:sm[b])-mn>=Math.max(d.reDb,d.riseDb||0)){ raw.push([st,b-1]); st=b; la=b; continue; }
     }
     if(b-la>=silB){ raw.push([st,la]); inS=false; }
   }
@@ -730,7 +732,8 @@ function segment(){
   const pre=Math.round(d.preroll/1000*sr), fo=Math.round(d.fadeOut/1000*sr), maxF=Math.round(d.maxLen*sr), minF=d.minLen/1000*sr;
   const segs=[]; let prevE=0;
   raw.forEach(([a,z],i)=>{
-    const onF=a*B, s0=Math.max(prevE,onF-pre); let s=s0, e=Math.min(S.src.len,(z+1)*B+fo);
+    let onF=a*B; { const tl=lin(on)*0.5, ch=S.src.ch, from=Math.max(prevE,(a-1)*B), to=Math.min(S.src.len,(a+1)*B); for(let i=from;i<to;i++){ let v=0; for(const c of ch){ const q=c[i]<0?-c[i]:c[i]; if(q>v)v=q; } if(v>=tl){ onF=i; break; } } }
+    const s0=Math.max(prevE,onF-pre); let s=s0, e=Math.min(S.src.len,(z+1)*B+fo);
     if(d.zeroX){ const w=Math.round(0.003*sr), ch=S.src.ch; let bv=1e9; for(let i=Math.max(prevE,s0-w);i<=s0;i++){ let v=0; for(const c of ch) v+=c[i]<0?-c[i]:c[i]; if(v<bv){bv=v;s=i;} } }
     if(raw[i+1]) e=Math.min(e,raw[i+1][0]*B-pre);
     e=Math.min(e,s+maxF);
@@ -873,7 +876,7 @@ function slider(host,obj,key,label,min,max,step,fmtF,after,defFn,bucket){
   was.querySelector('button').onclick=()=>{ obj[key]=defFn(); sync(); after(); countChanges(); };
   sync(); (bucket||syncs).push(sync); return sync;
 }
-const detKeys=['thrRel','offRel','minSil','preroll','fadeOut','maxLen','reattack'];
+const detKeys=['thrRel','offRel','riseDb','minSil','preroll','fadeOut','maxLen','reattack'];
 const normKeys=['strength','maxCorr','peak'];
 function countChanges(){
   const dc=detKeys.filter(k=>S.det[k]!==P().det[k]).length, nc=normKeys.filter(k=>S.norm[k]!==P().norm[k]).length;
@@ -883,8 +886,9 @@ let reTimer=0; const reanalyzeSoon=()=>{ clearTimeout(reTimer); reTimer=setTimeo
 const dB=v=>fmt(v,0)+' dB', ms=v=>v+' ms';
 function buildDet(){
   const h=$('#detCtl'), d=S.det, df=k=>()=>P().det[k];
-  slider(h,d,'thrRel','רגישות לתחילת תו',-70,-10,1,v=>dB(v)+' מהשיא',reanalyzeSoon,df('thrRel'));
-  slider(h,d,'offRel','איפה נגמר הזנב',-90,-30,1,v=>dB(v)+' מהשיא',reanalyzeSoon,df('offRel'));
+  slider(h,d,'thrRel','סף מכה',-70,-6,1,v=>dB(v)+' מהשיא',reanalyzeSoon,df('thrRel'));
+  slider(h,d,'offRel','סוף זנב',-90,-15,1,v=>dB(v)+' מהשיא',reanalyzeSoon,df('offRel'));
+  slider(h,d,'riseDb','חדות המכה הנדרשת',0,30,1,v=>v?'עלייה של '+v+' dB':'כבוי',reanalyzeSoon,df('riseDb'));
   slider(h,d,'minSil','שקט מינימלי בין תווים',50,1500,10,ms,reanalyzeSoon,df('minSil'));
   slider(h,d,'preroll','מרווח לפני המכה',0,30,1,ms,reanalyzeSoon,df('preroll'));
   slider(h,d,'fadeOut','פייד בסוף הדגימה',5,300,5,ms,reanalyzeSoon,df('fadeOut'));
@@ -984,9 +988,10 @@ function layerVar(l,N){ const idx=N<=1?1:Math.round((l-1)*5/(N-1)); return '--v'
 const layerColor=(l,N)=>css(layerVar(l,N));
 
 /* ---------- waveform ---------- */
+const WR=78;
 function drawWave(){
   const cv=$('#wave'), wrap=$('#waveScroll'); if(!S.src) return;
-  const W=Math.max(wrap.clientWidth, S.segs.length*34), H=150, dpr=window.devicePixelRatio||1;
+  const W=Math.max(wrap.clientWidth, S.segs.length*34), H=170, dpr=window.devicePixelRatio||1;
   cv.style.width=W+'px'; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
   const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
   const {db,nb}=S.env, len=S.src.len, X=f=>f/len*W, mid=H/2+8, amp=(H/2-14);
@@ -1001,8 +1006,16 @@ function drawWave(){
   });
   const top=S.env.peak;
   g.fillStyle=css('--scr-wave'); g.beginPath();
-  const cols=Math.ceil(W); for(let x=0;x<cols;x++){ const b0=Math.floor(x/W*nb), b1=Math.max(b0+1,Math.floor((x+1)/W*nb)); let m=-200; for(let b=b0;b<b1&&b<nb;b++) if(db[b]>m)m=db[b]; const a=Math.max(0,lin(m-top)); g.rect(x,mid-a*amp,1,Math.max(1,2*a*amp)); }
+  const cols=Math.ceil(W); for(let x=0;x<cols;x++){ const b0=Math.floor(x/W*nb), b1=Math.max(b0+1,Math.floor((x+1)/W*nb)); let m=-200; for(let b=b0;b<b1&&b<nb;b++) if(db[b]>m)m=db[b]; const a=Math.max(0,(m-top+WR)/WR); g.rect(x,mid-a*amp,1,Math.max(1,2*a*amp)); }
   g.fill();
+  S._wg={mid,amp,H};
+  const ly=L=>Math.max(0,(L+WR)/WR)*amp;
+  const band=(L,col,dash,label)=>{ const y=ly(L); g.setLineDash(dash); g.strokeStyle=col; g.lineWidth=1.6; [mid-y,mid+y].forEach(yy=>{ g.beginPath(); g.moveTo(0,yy); g.lineTo(W,yy); g.stroke(); }); g.setLineDash([]);
+    g.font='600 11px Assistant, sans-serif'; g.direction='rtl'; g.textAlign='right'; g.textBaseline='middle';
+    for(let x=W-8;x>0;x-=380){ const tw=g.measureText(label).width+14; g.fillStyle=col; g.beginPath(); if(g.roundRect) g.roundRect(x-tw,mid-y-9,tw,18,9); else g.rect(x-tw,mid-y-9,tw,18); g.fill(); g.fillStyle=css('--scr-bg'); g.fillText(label,x-7,mid-y+0.5);
+      g.fillStyle=col; g.beginPath(); g.arc(x-tw-8,mid+y,5,0,7); g.fill(); } };
+  band(S.det.offRel,css('--scr-ink'),[5,4],'סוף זנב');
+  band(S.det.thrRel,css('--accent'),[],'סף מכה');
   g.font='500 10.5px "IBM Plex Mono", monospace'; g.textBaseline='top'; g.direction='ltr'; g.textAlign='left';
   S.segs.forEach(s=>{ const it=byseg.get(s); const w=X(s.e)-X(s.s); let t=it?nName(it.midi)+' V'+it.layer:(s.keep?'?':'×'); if(w<g.measureText(t).width+4) t=it?'V'+it.layer:t; if(w<14) return;
     g.fillStyle=it&&s.keep?layerColor(it.layer,N):css('--scr-wave'); g.fillText(t,X(s.s)+2,1); });
@@ -1361,19 +1374,32 @@ const QWERTY='awsedftgyhujk';
 function qwertyBase(){ const its=S.items.filter(i=>!i.dup); const lo=its.length?Math.min(...its.map(i=>i.midi)):48; return lo-(lo%12); }
 
 /* ---------- wire up ---------- */
-function autoThr(){
-  const {floor,peak}=S.env; S.det.offRel=Math.round(Math.max(-90,Math.min(-30,floor+8-peak))); S.det.thrRel=Math.round(Math.max(-70,Math.min(-10,Math.max(floor+22-peak,S.det.offRel+12))));
-  syncs.forEach(f=>f()); countChanges(); segAndMeasure(); refresh(); toast('הספים כוונו לפי רעש הרקע');
+function autoThr(quiet){
+  const {floor,med,peak}=S.env, perc=S.plan.mode==='drum'||S.det.riseDb>=12;
+  const noise=perc?Math.max(floor,Math.min(med,peak-20)):floor;
+  S.det.offRel=Math.round(Math.max(-90,Math.min(-15,noise+6-peak)));
+  S.det.thrRel=Math.round(Math.max(-70,Math.min(-6,Math.max(noise+16-peak,S.det.offRel+8))));
+  syncs.forEach(f=>f()); countChanges(); segAndMeasure(); refresh(); if(quiet!==true) toast('הספים כוונו לפי רעש הרקע');
 }
+function maybeAutoThr(){ const {floor,peak}=S.env; if(floor-peak>S.det.offRel+4){ autoThr(true); return 'רעש הרקע חזק, והספים כוונו לפיו'; } return ''; }
 function init(){
   const ex=S.exp; Object.assign(S.det,P().det); Object.assign(S.plan,P().plan); Object.assign(S.norm,P().norm); Object.assign(ex,P().exp);
   buildDet(); buildAtk(); buildPlan(); buildNorm(); renderInsts(); syncNormMode(); syncs.forEach(f=>f());
   $('#file').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) loadFile(f); e.target.value=''; });
   $('#demoBtn').onclick=()=>{ makeDemo(); applyPreset('piano'); analyzeAll(); toast('הקלטת הדוגמה נטענה'); };
-  $('#autoThr').onclick=autoThr;
+  $('#autoThr').onclick=()=>autoThr();
   $('#detReset').onclick=()=>{ Object.assign(S.det,P().det); syncs.forEach(f=>f()); countChanges(); segAndMeasure(); refresh(); toast('החיתוך הוחזר לערכי הפריסט'); };
   $('#normReset').onclick=()=>{ Object.assign(S.norm,P().norm,{gaps:{}}); syncNormMode(); buildNorm(); countChanges(); refresh(); toast('העוצמה הוחזרה לערכי הפריסט'); };
-  $('#wave').addEventListener('click',waveClick);
+  { const cv=$('#wave'); let drag=null, skip=false;
+    const yOf=e=>{ const r=cv.getBoundingClientRect(); return (e.clientY-r.top)*(S._wg.H/r.height); };
+    const ly=L=>Math.max(0,(L+WR)/WR)*S._wg.amp;
+    cv.addEventListener('pointerdown',e=>{ if(!S._wg) return; const dy=Math.abs(yOf(e)-S._wg.mid), dT=Math.abs(dy-ly(S.det.thrRel)), dO=Math.abs(dy-ly(S.det.offRel));
+      if(Math.min(dT,dO)<=16){ drag=dT<=dO?'thrRel':'offRel'; skip=true; try{ cv.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault(); } });
+    cv.addEventListener('pointermove',e=>{ if(!drag) return; let L=Math.round(Math.abs(yOf(e)-S._wg.mid)/S._wg.amp*WR-WR);
+      L=drag==='thrRel'?Math.max(-70,Math.min(-6,Math.max(L,S.det.offRel+6))):Math.max(-90,Math.min(-15,Math.min(L,S.det.thrRel-6)));
+      if(L!==S.det[drag]){ S.det[drag]=L; drawWave(); syncs.forEach(f=>f()); countChanges(); reanalyzeSoon(); } });
+    const end=()=>{ drag=null; }; cv.addEventListener('pointerup',end); cv.addEventListener('pointercancel',end);
+    cv.addEventListener('click',e=>{ if(skip){ skip=false; return; } waveClick(e); }); }
   $('#iname').value=ex.name; $('#chans').value=ex.chans; $('#bits').value=ex.bits; $('#osr').value=ex.osr; $('#sharp').value=ex.sharp; $('#folders').checked=ex.folders;
   $('#iname').oninput=e=>{ e.target.value=e.target.value.replace(/[^A-Za-z0-9_-]/g,'').toUpperCase(); ex.name=e.target.value; };
   $('#chans').onchange=e=>{ ex.chans=e.target.value; renderExportInfo(); };
@@ -1591,7 +1617,7 @@ function synthPluck(sr){
 function sliceLoadData(name,sr,ch){
   stopAll(); S.src={name,sr,ch,len:ch[0].length}; S.isDemo=false; S.excluded=[]; S.merges=[]; S.sel=-1;
   $('#rangeKb').dataset.range=''; $('#playKb').dataset.range='';
-  analyzeAll(); const msg=S.plan.mode==='plan'?autoPlan(true):''; toast('ההקלטה נטענה לחיתוך'+(msg?' · '+msg:''));
+  analyzeAll(); const msg=[maybeAutoThr(),S.plan.mode==='plan'?autoPlan(true):''].filter(Boolean).join(' · '); toast('ההקלטה נטענה לחיתוך'+(msg?' · '+msg:''));
 }
 function soundFromSlicer(name){
   const its=S.items.filter(i=>!i.dup); if(!its.length) return null;
@@ -1862,9 +1888,12 @@ const Player=(()=>{
   let master=null; const chains=new Map(), bufs=new Map(), voices=new Map(), held=new Set(), IRs=new Map(); let fxT=0;
 
   /* ----- audio ----- */
-  function graph(){ if(master) return; const c=ac(); const comp=c.createDynamicsCompressor();
-    comp.threshold.value=-6; comp.knee.value=6; comp.ratio.value=12; comp.attack.value=0.003; comp.release.value=0.15;
-    master=c.createGain(); master.gain.value=0.9; master.connect(comp); comp.connect(c.destination); }
+  function graph(){ if(master) return; const c=ac();
+    const sh=c.createWaveShaper(), n=4096, cur=new Float32Array(n);
+    for(let i=0;i<n;i++){ const x=i/(n-1)*2-1, a=Math.abs(x); cur[i]=a<=0.8?x:Math.sign(x)*(0.8+0.2*Math.tanh((a-0.8)/0.2)); }
+    sh.curve=cur; sh.oversample='none'; master=c.createGain(); master.gain.value=0.8; master.connect(sh); sh.connect(c.destination); }
+  let warmT=0;
+  function prewarm(snd){ clearTimeout(warmT); if(!snd) return; chainFor(snd); let i=0; const step=()=>{ const t0=performance.now(); while(i<snd.samples.length&&performance.now()-t0<12){ sbuf(snd,i); i++; } if(i<snd.samples.length&&P.cur===snd) warmT=setTimeout(step,0); }; warmT=setTimeout(step,0); }
   function makeIR(type,decay){
     const key=type+'|'+decay.toFixed(1); if(IRs.has(key)) return IRs.get(key);
     const c=ac(), sr=c.sampleRate, pre={room:0.004,hall:0.022,plate:0.001}[type]||0.004, bright={room:0.5,hall:0.35,plate:0.85}[type]||0.5;
@@ -1904,9 +1933,9 @@ const Player=(()=>{
     const g=c.createGain(); const span=s.vhi-s.vlo;
     g.gain.value=span>100?lin(-(1-vel/127)*18):lin(-(1-Math.max(0,Math.min(1,(vel-s.vlo)/Math.max(1,span))))*6);
     src.connect(g); g.connect(ch.input); src.start(); held.add(m);
-    const v={src,g}; voices.set(m,v); mark(m,true,i);
+    const v={src,g}; voices.set(m,v); requestAnimationFrame(()=>{ if(voices.get(m)===v) mark(m,true,i); });
     src.onended=()=>{ if(voices.get(m)===v){ voices.delete(m); mark(m,false); } };
-    $('#plLast').innerHTML=`<span class="ltr">${nName(m)} · velocity ${vel}</span> · ${esc(s.name||nName(s.root))}`;
+    const lbl=`<span class="ltr">${nName(m)} · velocity ${vel}</span> · ${esc(s.name||nName(s.root))}`; requestAnimationFrame(()=>{ $('#plLast').innerHTML=lbl; });
   }
   function noteOff(m,force){ held.delete(m); const snd=P.cur;
     if(!force&&(P.sustain||(snd&&snd.kind==='kit'))){ mark(m,false); return; }
@@ -1926,7 +1955,7 @@ const Player=(()=>{
     if(s){ P.mode=s.kind==='kit'?'pads':'keys';
       if(s.kind!=='kit'){ const roots=s.samples.map(x=>x.root), lo=Math.min(...roots), hi=Math.max(...roots), span=Math.round(P.whites*12/7);
         if(hi<P.base||lo>P.base+span){ P.base=Math.max(24,Math.min(84,12*Math.floor(((lo+hi)/2-span/2)/12))); lsSet('base',P.base); } } }
-    renderBank(); renderCur(); renderFx(); renderSurface(); }
+    renderBank(); renderCur(); renderFx(); renderSurface(); prewarm(P.cur); }
   function renderBank(){
     const h=$('#bank'), pp=P.perPage, pages=Math.ceil(NS/pp); h.innerHTML=''; h.classList.toggle('editing',P.edit); h.style.setProperty('--cols',pp===6?3:4); h.style.setProperty('--pp',pp);
     for(let p=0;p<pages;p++){ const pg=document.createElement('div'); pg.className='pg';
@@ -2039,7 +2068,7 @@ const Player=(()=>{
     Lib.sub(()=>{ let ch=false; P.slots=P.slots.map(id=>{ if(id&&!Lib.sound(id)){ ch=true; return null; } return id; }); if(ch) saveSlots();
       if(P.cur&&!Lib.sound(P.cur.id)){ select(Lib.sound(P.slots.find(Boolean))||null); return; } renderBank(); renderCur(); });
     App.on('play',()=>{ renderBank(); renderSurface(); const c=ac(); const lat=((c.baseLatency||0)+(c.outputLatency||0))*1000; $('#plLat').textContent=lat?`השהיה משוערת: ${Math.round(lat)} ms`:''; });
-    App.on('leave:play',allOff);
+    App.on('leave:play',allOff); prewarm(P.cur);
     renderBank(); renderCur(); renderFx(); renderSurface();
   }
   return {init,midi,place,setSlots,select};
