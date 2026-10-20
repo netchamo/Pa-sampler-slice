@@ -22,6 +22,9 @@
   --v1:#5583C6; --v2:#3B9990; --v3:#87A043; --v4:#D49B30; --v5:#D2692C; --v6:#A8344F;
   --scr-bg:#171314; --scr-grid:#2B2324; --scr-wave:#B3A19D; --scr-ink:#EFE6E3; --scr-line:#413536;
   --shadow:0 1px 2px rgb(40 20 18/.05),0 10px 26px -18px rgb(40 20 18/.35);
+  --bar-bg:#6E2722; --bar-bg2:#561C18; --bar-ink:#F6E3DF; --bar-dim:#D9AFA8; --bar-on:#FFFFFF;
+  --body-1:#2A2223; --body-2:#171213; --body-edge:#3C3133; --body-ink:#E9DDDA; --body-dim:#9C8B88; --felt:#8E2F28; --lcd-bg:#120D0B; --lcd-ink:#F2B35A;
+  --ivory-1:#FFFDF8; --ivory-2:#EDE6DA; --ebony-1:#3A3234; --ebony-2:#0F0B0C;
   --f-disp:"Secular One","Assistant",system-ui,sans-serif;
   --f-body:"Assistant",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -32,14 +35,14 @@
   --ok:#5CBB8B; --warn:#E2AD4E; --bad:#EC7B72;
   --v1:#7FA5DD; --v2:#5BBDB2; --v3:#A9C16A; --v4:#E8BC5A; --v5:#EC9358; --v6:#D96A85;
   --scr-bg:#0E0B0C; --scr-grid:#251E1F; --scr-wave:#A08F8B; --scr-ink:#EFE6E3; --scr-line:#3B3031;
-  --shadow:0 1px 2px rgb(0 0 0/.3),0 12px 28px -20px rgb(0 0 0/.8); color-scheme:dark}}
+  --shadow:0 1px 2px rgb(0 0 0/.3),0 12px 28px -20px rgb(0 0 0/.8); --bar-bg:#5A201C; --bar-bg2:#3E1512; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#121011; --panel:#1B1718; --soft:#221D1E; --line:#342C2D; --ink:#EEE7E5; --muted:#A69895;
   --primary:#BA5E54; --primary-ink:#FFFFFF; --primary-soft:#2F1F1D; --accent:#EBA14B;
   --ok:#5CBB8B; --warn:#E2AD4E; --bad:#EC7B72;
   --v1:#7FA5DD; --v2:#5BBDB2; --v3:#A9C16A; --v4:#E8BC5A; --v5:#EC9358; --v6:#D96A85;
   --scr-bg:#0E0B0C; --scr-grid:#251E1F; --scr-wave:#A08F8B; --scr-ink:#EFE6E3; --scr-line:#3B3031;
-  --shadow:0 1px 2px rgb(0 0 0/.3),0 12px 28px -20px rgb(0 0 0/.8); color-scheme:dark}
+  --shadow:0 1px 2px rgb(0 0 0/.3),0 12px 28px -20px rgb(0 0 0/.8); --bar-bg:#5A201C; --bar-bg2:#3E1512; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
 [hidden]{display:none!important}
@@ -200,11 +203,13 @@ details.adv .advbody{display:flex;flex-direction:column;gap:14px;padding-top:14p
 .apphead h1{font-family:var(--f-disp);font-weight:400;font-size:clamp(24px,5vw,32px);margin:0;line-height:1.1}
 .apphead .tag{align-self:center}
 .app.view{padding-block:14px calc(104px + env(safe-area-inset-bottom,0px))}
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:15;background:color-mix(in srgb,var(--panel) 94%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:15;background:linear-gradient(180deg,var(--bar-bg),var(--bar-bg2));border-radius:18px 18px 0 0;box-shadow:0 -8px 24px -10px rgb(60 15 12/.55);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
 .tabbar .in{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:560px;margin:0 auto}
-.tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border:0;background:none;color:var(--muted);font:600 12.5px var(--f-body);border-radius:12px;cursor:pointer;min-height:54px;touch-action:manipulation}
+.tab{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border:0;background:none;color:var(--bar-dim);font:600 12.5px var(--f-body);border-radius:12px;cursor:pointer;min-height:54px;touch-action:manipulation}
 .tab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.tab[aria-current=page]{color:var(--primary);background:var(--primary-soft)}
+.tab[aria-current=page]{color:var(--bar-on);background:rgb(255 255 255/.14)}
+.tab[aria-current=page]::before{content:"";position:absolute;top:-6px;left:50%;width:28px;height:4px;margin-left:-14px;border-radius:0 0 4px 4px;background:var(--accent)}
+.tab:focus-visible{outline:2px solid var(--bar-on);outline-offset:-2px}
 .btn.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
 .seg.sm button{min-height:34px;padding:4px 12px;font-size:13px}
 button{touch-action:manipulation}
@@ -296,21 +301,29 @@ button{touch-action:manipulation}
 .octrow{display:flex;align-items:center;gap:6px}
 .octrow .btn{min-width:42px;font-size:18px}
 .octrow .info{min-width:76px;text-align:center}
-.surface{position:relative}
+.surface{position:relative;background:linear-gradient(180deg,var(--body-1),var(--body-2));border-radius:18px;padding:0 10px 12px;border:1px solid var(--body-edge);box-shadow:0 14px 30px -14px rgb(20 8 8/.6),inset 0 1px 0 rgb(255 255 255/.08)}
+.panel-top{display:flex;align-items:center;gap:10px;padding:10px 4px;direction:rtl}
+.panel-top .pled{flex:none;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.lcd{flex:1;min-width:0;background:var(--lcd-bg);color:var(--lcd-ink);font:500 12.5px var(--f-mono);border-radius:6px;padding:6px 10px;box-shadow:inset 0 1px 3px rgb(0 0 0/.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:30px;display:flex;align-items:center;gap:8px}
+.lcd .ln{color:var(--body-dim);direction:ltr}
+.panel-top .mark{flex:none;font:700 10px var(--f-body);letter-spacing:.12em;color:var(--body-dim)}
+.keybed{position:relative;border-radius:6px;padding-top:6px;background:linear-gradient(180deg,var(--felt) 0 4px,#0c0909 4px)}
+.padbed{padding:2px}
 .pkb{position:relative;display:flex;direction:ltr;height:clamp(150px,34vh,300px);user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none}
 .pkb .k{box-sizing:border-box}
-.pkb .w{flex:none;height:100%;background:var(--panel);border:1px solid var(--line);border-left-width:0;border-radius:0 0 9px 9px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font:500 11px var(--f-mono);color:var(--muted);position:relative;cursor:pointer}
+.pkb .w{flex:none;height:100%;background:linear-gradient(180deg,var(--ivory-2) 0,var(--ivory-1) 18%,var(--ivory-1) 88%,var(--ivory-2));border:1px solid #2a2324;border-top:0;border-left-width:0;border-radius:0 0 8px 8px;box-shadow:inset 0 -6px 0 rgb(0 0 0/.07);display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;font:500 11px var(--f-mono);color:#8a7f7c;position:relative;cursor:pointer}
 .pkb .w:first-child{border-left-width:1px}
-.pkb .b{position:absolute;top:0;height:60%;background:var(--ink);border-radius:0 0 6px 6px;z-index:2;cursor:pointer}
+.pkb .w:active,.pkb .w.on{box-shadow:inset 0 -2px 0 rgb(0 0 0/.12)}
+.pkb .b{position:absolute;top:0;height:60%;background:linear-gradient(180deg,var(--ebony-2),var(--ebony-1) 85%,#4a4143);border-radius:0 0 5px 5px;z-index:2;cursor:pointer;box-shadow:0 3px 4px rgb(0 0 0/.45),inset 0 -5px 0 rgb(0 0 0/.35)}
 .pkb .root::before{content:"";position:absolute;bottom:30px;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--primary)}
-.pkb .b.root::before{bottom:9px;background:var(--panel)}
-.pkb .on{background:var(--on,var(--accent))!important;color:var(--panel)}
+.pkb .b.root::before{bottom:12px;background:var(--ivory-1)}
+.pkb .on{background:var(--on,var(--accent))!important;color:#fff}
 .pads{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;direction:ltr;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none}
-.pad{box-sizing:border-box;height:clamp(64px,9vh,104px);border-radius:12px;background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column;justify-content:flex-end;padding:8px;font-size:12px;color:var(--muted);cursor:pointer;overflow:hidden;box-shadow:inset 0 -3px 0 color-mix(in srgb,var(--pc,var(--line)) 70%,transparent)}
-.pad b{color:var(--ink);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:auto}
+.pad{box-sizing:border-box;height:clamp(64px,9vh,104px);border-radius:10px;background:linear-gradient(180deg,#3d3436,#2b2426);border:1px solid #4d4244;display:flex;flex-direction:column;justify-content:flex-end;padding:8px;font-size:11.5px;color:var(--body-dim);cursor:pointer;overflow:hidden;box-shadow:0 3px 0 #120e0f,inset 0 1px 0 rgb(255 255 255/.07),inset 0 -3px 0 color-mix(in srgb,var(--pc,#555) 75%,transparent);transition:transform .04s}
+.pad b{color:var(--body-ink);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:auto}
 .pad.none{opacity:.4}
-.pad.on{background:var(--on,var(--accent));color:var(--panel)}
-.pad.on b{color:var(--panel)}
+.pad.on{background:var(--on,var(--accent));color:#fff;transform:translateY(2px);box-shadow:0 1px 0 #120e0f,0 0 18px color-mix(in srgb,var(--on,var(--accent)) 70%,transparent)}
+.pad.on b{color:#fff}
 .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 @media (orientation:landscape) and (max-height:560px){
   .apphead{display:none}
@@ -322,9 +335,12 @@ button{touch-action:manipulation}
   .slot .sk{display:none}
   .slot .sn{-webkit-line-clamp:1;font-size:13px}
   .soundbar .cur span{display:none}
-  .pkb{height:max(130px,calc(100vh - 222px))}
+  .panel-top{padding:6px 2px}
+  .lcd{min-height:24px;padding:3px 8px}
+  .pkb{height:max(110px,calc(100vh - 292px))}
+  .surface{padding-bottom:8px}
   .pads{gap:6px}
-  .pad{height:max(34px,calc((100vh - 230px - (var(--rows,4) - 1)*6px)/var(--rows,4)));flex-direction:row;align-items:center;justify-content:space-between;gap:6px;padding:4px 10px}
+  .pad{height:max(34px,calc((100vh - 296px - (var(--rows,4) - 1)*6px)/var(--rows,4)));flex-direction:row;align-items:center;justify-content:space-between;gap:6px;padding:4px 10px}
   .tab{min-height:40px;flex-direction:row;gap:6px;padding:4px}
   .tab svg{width:20px;height:20px}
   .toast{bottom:calc(56px + env(safe-area-inset-bottom,0px))}
@@ -563,8 +579,7 @@ button{touch-action:manipulation}
       <div class="octrow"><button class="btn sm" id="plDown" type="button" aria-label="אוקטבה למטה">−</button><span class="info ltr" id="plRange"></span><button class="btn sm" id="plUp" type="button" aria-label="אוקטבה למעלה">+</button></div>
       <button class="btn sm" id="plSus" type="button" aria-pressed="false">פדל החזקה</button>
     </div>
-    <div class="surface"><div class="pkb" id="pkb"></div><div class="pads" id="pads" hidden></div></div>
-    <div class="lastnote" id="plLast"></div>
+    <div class="surface" id="surface"><div class="panel-top"><span class="pled" aria-hidden="true"></span><div class="lcd" id="plLast"></div><span class="mark ltr">SAMPLER</span></div><div class="keybed" id="keybed"><div class="pkb" id="pkb"></div></div><div class="padbed" id="padbed" hidden><div class="pads" id="pads"></div></div></div>
     <details class="adv" id="plAdv"><summary>הגדרות נגינה</summary><div class="advbody">
       <div class="grid">
         <div class="ctl"><label for="plWhites"><span>קלידים במסך</span></label><select id="plWhites"><option value="7">אוקטבה אחת</option><option value="10">אוקטבה וחצי</option><option value="14">שתי אוקטבות</option><option value="21">שלוש אוקטבות</option></select></div>
@@ -1935,7 +1950,7 @@ const Player=(()=>{
     src.connect(g); g.connect(ch.input); src.start(); held.add(m);
     const v={src,g}; voices.set(m,v); requestAnimationFrame(()=>{ if(voices.get(m)===v) mark(m,true,i); });
     src.onended=()=>{ if(voices.get(m)===v){ voices.delete(m); mark(m,false); } };
-    const lbl=`<span class="ltr">${nName(m)} · velocity ${vel}</span> · ${esc(s.name||nName(s.root))}`; requestAnimationFrame(()=>{ $('#plLast').innerHTML=lbl; });
+    const lbl=`${esc(s.name||nName(s.root))} <span class="ln">${nName(m)} · vel ${vel}</span>`; requestAnimationFrame(()=>{ const l=$('#plLast'); l.dataset.played='1'; l.innerHTML=lbl; });
   }
   function noteOff(m,force){ held.delete(m); const snd=P.cur;
     if(!force&&(P.sustain||(snd&&snd.kind==='kit'))){ mark(m,false); return; }
@@ -1951,7 +1966,7 @@ const Player=(()=>{
   function setSlots(ids){ P.slots=ids.slice(0,NS); while(P.slots.length<NS) P.slots.push(null); saveSlots(); }
   function place(id){ let idx=P.slots.indexOf(id); if(idx<0){ idx=P.slots.indexOf(null); if(idx<0) idx=NS-1; P.slots[idx]=id; saveSlots(); }
     const s=Lib.sound(id); if(s) select(s); showPage(Math.floor(idx/P.perPage)); }
-  function select(s){ allOff(); P.cur=s||null; lsSet('cur',s?s.id:null);
+  function select(s){ allOff(); delete $('#plLast').dataset.played; P.cur=s||null; lsSet('cur',s?s.id:null);
     if(s){ P.mode=s.kind==='kit'?'pads':'keys';
       if(s.kind!=='kit'){ const roots=s.samples.map(x=>x.root), lo=Math.min(...roots), hi=Math.max(...roots), span=Math.round(P.whites*12/7);
         if(hi<P.base||lo>P.base+span){ P.base=Math.max(24,Math.min(84,12*Math.floor(((lo+hi)/2-span/2)/12))); lsSet('base',P.base); } } }
@@ -2012,7 +2027,7 @@ const Player=(()=>{
 
   /* ----- playing surface ----- */
   function renderSurface(){
-    const pads=P.mode==='pads'; $('#pkb').hidden=pads; $('#pads').hidden=!pads;
+    const pads=P.mode==='pads'; $('#keybed').hidden=pads; $('#padbed').hidden=!pads; if(!$('#plLast').dataset.played) $('#plLast').innerHTML=P.cur?`${esc(P.cur.name)} <span class="ln">· ${pads?'פדים':'קלידים'}</span>`:'אין סאונד';
     document.querySelectorAll('[data-pmode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pmode===P.mode));
     const kit=P.cur&&P.cur.kind==='kit'; $('#plDown').disabled=$('#plUp').disabled=pads&&kit;
     if(pads) renderPads(); else renderKeys();
