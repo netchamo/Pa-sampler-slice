@@ -4,11 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#7B2D28">
+<meta name="theme-color" content="#121011">
+<meta name="color-scheme" content="dark">
 <link rel="icon" type="image/png" href="icons/favicon-64.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="חותך דגימות">
 <title>Pa4X Sample Slicer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,9 +45,28 @@
   --v1:#7FA5DD; --v2:#5BBDB2; --v3:#A9C16A; --v4:#E8BC5A; --v5:#EC9358; --v6:#D96A85;
   --scr-bg:#0E0B0C; --scr-grid:#251E1F; --scr-wave:#A08F8B; --scr-ink:#EFE6E3; --scr-line:#3B3031;
   --shadow:0 1px 2px rgb(0 0 0/.3),0 12px 28px -20px rgb(0 0 0/.8); --bar-bg:#5A201C; --bar-bg2:#3E1512; color-scheme:dark}
+/* The app is always dark, whatever the phone setting */
+:root:root:root{
+  --bg:#121011; --panel:#1B1718; --soft:#221D1E; --line:#342C2D; --ink:#EEE7E5; --muted:#A69895;
+  --primary:#BA5E54; --primary-ink:#FFFFFF; --primary-soft:#2F1F1D; --accent:#EBA14B;
+  --ok:#5CBB8B; --warn:#E2AD4E; --bad:#EC7B72;
+  --v1:#7FA5DD; --v2:#5BBDB2; --v3:#A9C16A; --v4:#E8BC5A; --v5:#EC9358; --v6:#D96A85;
+  --scr-bg:#0E0B0C; --scr-grid:#251E1F; --scr-wave:#A08F8B; --scr-ink:#EFE6E3; --scr-line:#3B3031;
+  --shadow:0 1px 2px rgb(0 0 0/.3),0 12px 28px -20px rgb(0 0 0/.8); --bar-bg:#5A201C; --bar-bg2:#3E1512; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
 [hidden]{display:none!important}
+.splash{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:radial-gradient(120% 80% at 50% 35%,#2a1b1a 0,var(--bg) 70%);transition:opacity .4s ease}
+.splash.out{opacity:0;pointer-events:none}
+.sp-in{display:flex;flex-direction:column;align-items:center;gap:10px;animation:spin .7s ease-out both}
+.sp-logo{width:150px!important}
+.sp-title{font:400 34px var(--f-disp);color:var(--ink);margin-top:6px}
+.sp-sub{font:600 15px var(--f-body);color:var(--muted);letter-spacing:.04em}
+.sp-bar{width:120px;height:3px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:14px}
+.sp-bar i{display:block;width:40%;height:100%;background:var(--accent);animation:spbar 1s ease-in-out infinite}
+@keyframes spin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes spbar{from{transform:translateX(-120%)}to{transform:translateX(320%)}}
+@media (prefers-reduced-motion:reduce){.sp-in,.sp-bar i{animation:none}}
 .app{max-width:1040px;margin:0 auto;padding-block:22px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
 .top{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:10px 2px 8px}
 .brand{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
@@ -86,7 +107,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);fo
 .info{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
 .label{font-size:14px;font-weight:700}
 .insts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
-.inst{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:10px 12px;cursor:pointer;text-align:start;font:inherit;color:inherit;display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center;min-height:62px}
+.inst{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:10px 12px;cursor:pointer;text-align:start;font:inherit;color:inherit;display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center;min-height:62px}
 .inst .ic{grid-row:span 2;width:34px;height:34px;border-radius:9px;background:var(--soft);display:grid;place-items:center;color:var(--primary)}
 .inst .ic svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .inst .ic svg .f{fill:currentColor;stroke:none}
@@ -201,7 +222,9 @@ details.adv .advbody{display:flex;flex-direction:column;gap:14px;padding-top:14p
 .apphead{max-width:1040px;margin:0 auto;padding-block:14px 2px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
 .apphead .logo{width:58px}
 .apphead h1{font-family:var(--f-disp);font-weight:400;font-size:clamp(24px,5vw,32px);margin:0;line-height:1.1}
-.apphead .tag{align-self:center}
+.apphead .brandtext{display:flex;flex-direction:column;align-items:flex-start;gap:0}
+.tagline{font:600 13px var(--f-body);color:var(--muted);letter-spacing:.02em}
+.logo .lt{font:700 7.4px var(--f-body);fill:var(--primary-ink)}
 .app.view{padding-block:14px calc(104px + env(safe-area-inset-bottom,0px))}
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:15;background:linear-gradient(180deg,var(--bar-bg),var(--bar-bg2));border-radius:18px 18px 0 0;box-shadow:0 -8px 24px -10px rgb(60 15 12/.55);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
 .tabbar .in{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:560px;margin:0 auto}
@@ -217,6 +240,9 @@ button{touch-action:manipulation}
 /* ---------- sheet ---------- */
 .sheet-ov{position:fixed;inset:0;z-index:30;background:rgb(0 0 0/.45);display:flex;align-items:flex-end;justify-content:center}
 .sheet{width:100%;max-width:640px;max-height:88vh;overflow:auto;background:var(--panel);color:var(--ink);border-radius:18px 18px 0 0;padding-top:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px;font-family:var(--f-body);box-shadow:0 -10px 30px rgb(0 0 0/.25)}
+.layerpick{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.lp{min-height:56px;border-radius:12px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:500 22px var(--f-mono);cursor:pointer}
+.lp[aria-pressed=true]{background:var(--primary);color:var(--primary-ink);border-color:var(--primary)}
 .sheet-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .sheet-h b{font-family:var(--f-disp);font-weight:400;font-size:20px}
 .opts{display:flex;flex-direction:column;gap:8px}
@@ -236,9 +262,10 @@ button{touch-action:manipulation}
 
 /* ---------- recording ---------- */
 .recorder{display:flex;align-items:center;gap:18px}
-.recbtn{flex:none;width:88px;height:88px;border-radius:50%;border:4px solid var(--line);background:var(--panel);display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow)}
+.recbtn{flex:none;width:92px;height:92px;border-radius:50%;border:5px solid #4d4244;background:radial-gradient(circle at 50% 35%,#4a4042,#1a1415 70%);display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 0 #0c0909,0 10px 20px -8px rgb(0 0 0/.8),inset 0 1px 0 rgb(255 255 255/.12)}
 .recbtn span{display:block;width:46px;height:46px;border-radius:50%;background:var(--bad);transition:all .15s}
-.recbtn.on{border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.recbtn.on{border-color:#7a2a24}
+.recbtn.on span{box-shadow:0 0 18px #ff4a3d}
 .recbtn.on span{width:30px;height:30px;border-radius:7px}
 .recbtn.armed span{animation:pulse .9s ease-in-out infinite alternate}
 @keyframes pulse{from{opacity:1;transform:scale(1)}to{opacity:.45;transform:scale(.86)}}
@@ -255,6 +282,27 @@ button{touch-action:manipulation}
 .cliplamp{font:700 11px var(--f-body);padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
 .cliplamp.on{background:var(--bad);border-color:var(--bad);color:#fff}
 .recwave{width:100%;height:64px;display:block;background:var(--scr-bg);border-radius:10px}
+.recdev{background:linear-gradient(180deg,var(--body-1),var(--body-2));border:1px solid var(--body-edge);border-radius:20px;padding:12px;display:flex;flex-direction:column;gap:12px;box-shadow:0 14px 30px -14px rgb(0 0 0/.7),inset 0 1px 0 rgb(255 255 255/.08)}
+.rd-top{display:flex;align-items:center;gap:8px;padding:0 4px}
+.rd-top .mark{font:700 10px var(--f-body);letter-spacing:.14em;color:var(--body-dim)}
+.rd-top .rd-fmt{margin-inline-start:auto;font-family:var(--f-mono);letter-spacing:.04em}
+.rd-led{flex:none;width:9px;height:9px;border-radius:50%;background:#4a1d1a}
+.rd-led.rec{background:#ff4a3d;box-shadow:0 0 10px #ff4a3d}
+.rd-led.mon{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.rd-screen{background:var(--lcd-bg);border:1px solid #000;border-radius:12px;padding:10px 12px;box-shadow:inset 0 2px 8px rgb(0 0 0/.85),0 1px 0 rgb(255 255 255/.06);display:flex;flex-direction:column;gap:8px}
+.rd-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rd-screen .rectime{color:var(--lcd-ink);font-size:32px;text-shadow:0 0 10px rgb(242 179 90/.35)}
+.rd-screen .recstate{color:var(--body-dim);font-size:13px;min-width:0}
+.rd-screen .recwave{background:transparent;height:56px;border-radius:0}
+.rd-screen .meter{border:0;border-radius:3px;height:12px}
+.rd-screen .meter::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 5px,var(--lcd-bg) 5px 7px)}
+.rd-screen .metercover{background:#1f1712}
+.rd-screen .meterpeak{background:var(--lcd-ink);z-index:1}
+.rd-screen .meterdb{color:var(--lcd-ink)}
+.rd-screen .cliplamp{border-color:#3a2a1a;color:var(--body-dim)}
+.rd-ctl{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 4px}
+.rd-ctl .hw{min-width:108px}
+.rd-grille{width:108px;height:46px;border-radius:10px;background-image:radial-gradient(circle,#070505 1.7px,transparent 2px);background-size:7px 7px;background-color:#1e1819;box-shadow:inset 0 1px 3px rgb(0 0 0/.7)}
 .toggles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
 .tgl{position:relative;display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel);cursor:pointer}
 .tgl input{position:absolute;opacity:0;width:1px;height:1px}
@@ -309,6 +357,31 @@ button{touch-action:manipulation}
 .panel-top .mark{flex:none;font:700 10px var(--f-body);letter-spacing:.12em;color:var(--body-dim)}
 .keybed{position:relative;border-radius:6px;padding-top:6px;background:linear-gradient(180deg,var(--felt) 0 4px,#0c0909 4px)}
 .padbed{padding:2px}
+.panel-top .mark+.mark{margin-inline-start:auto;font-family:var(--f-mono);letter-spacing:.04em}
+.screen{background:var(--lcd-bg);border:1px solid #000;border-radius:12px;padding:8px 12px;margin-bottom:10px;box-shadow:inset 0 2px 8px rgb(0 0 0/.85),0 1px 0 rgb(255 255 255/.06);display:flex;flex-direction:column;gap:6px;font-family:var(--f-mono);color:var(--lcd-ink)}
+.scr-head{display:flex;align-items:center;gap:10px;min-width:0}
+.scr-slot{flex:none;font-size:11.5px;color:var(--lcd-ink);border:1px solid #5a3f22;border-radius:4px;padding:0 5px;opacity:.85}
+.scr-head b{flex:1;min-width:0;font:400 21px var(--f-disp);color:var(--lcd-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 0 12px rgb(242 179 90/.35)}
+.scr-kind{flex:none;font-size:11.5px;color:var(--body-dim)}
+.scope{display:block;width:100%;height:48px}
+.scr-foot{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--body-dim);min-width:0}
+.scr-foot #plLast{unicode-bidi:plaintext;text-align:right;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--lcd-ink)}
+.scr-foot #plLast .ln{color:var(--body-dim)}
+.velbar{flex:none;width:56px;height:6px;border-radius:3px;background:#2a1c10;overflow:hidden;direction:ltr}
+.velbar i{display:block;height:100%;width:0;background:var(--lcd-ink);transition:width .08s}
+.scr-tags{flex:none;display:flex;gap:5px}
+.scr-tags span{font-size:10px;letter-spacing:.06em;border:1px solid #5a3f22;color:var(--lcd-ink);border-radius:3px;padding:0 4px;line-height:16px}
+.hwrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hwgrp{display:flex;gap:6px;align-items:center}
+.hwgrp.oct{order:3;flex-basis:100%;justify-content:center}
+@media (min-width:620px){.hwgrp.oct{order:0;flex-basis:auto}}
+.hw{position:relative;white-space:nowrap;min-height:40px;min-width:46px;padding:6px 14px;border-radius:9px;border:1px solid #4d4244;background:linear-gradient(180deg,#40373a,#2a2325);color:var(--body-ink);font:600 13px var(--f-body);cursor:pointer;box-shadow:0 2px 0 #0e0a0b,inset 0 1px 0 rgb(255 255 255/.08)}
+.hw:active{transform:translateY(1px);box-shadow:0 1px 0 #0e0a0b}
+.hw:disabled{opacity:.4;cursor:default}
+.hw[aria-pressed]::after,.hw[aria-expanded]::after{content:"";position:absolute;top:5px;inset-inline-end:5px;width:5px;height:5px;border-radius:50%;background:#4a2a20}
+.hw[aria-pressed=true]::after,.hw[aria-expanded=true]::after{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.hw:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hw-read{font:500 12px var(--f-mono);color:var(--lcd-ink);background:var(--lcd-bg);border-radius:6px;padding:0 8px;min-width:74px;line-height:40px;text-align:center;box-shadow:inset 0 1px 3px rgb(0 0 0/.7)}
 .pkb{position:relative;display:flex;direction:ltr;height:clamp(150px,34vh,300px);user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none}
 .pkb .k{box-sizing:border-box}
 .pkb .w{flex:none;height:100%;background:linear-gradient(180deg,var(--ivory-2) 0,var(--ivory-1) 18%,var(--ivory-1) 88%,var(--ivory-2));border:1px solid #2a2324;border-top:0;border-left-width:0;border-radius:0 0 8px 8px;box-shadow:inset 0 -6px 0 rgb(0 0 0/.07);display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;font:500 11px var(--f-mono);color:#8a7f7c;position:relative;cursor:pointer}
@@ -329,7 +402,12 @@ button{touch-action:manipulation}
   .apphead{display:none}
   .app.view{padding-top:8px;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px));gap:8px}
   .app.view .step{padding:10px 12px;gap:8px;border-radius:12px}
-  #view-play .step-h,#view-play .dots,#view-play .soundbar,#view-play .fxpanel,#view-play .lastnote{display:none}
+  #view-play .step-h,#view-play .dots,#view-play .fxpanel,#view-play .panel-top,#view-play .scope,#view-play .scr-foot{display:none}
+  .screen{padding:4px 10px;margin:8px 0 6px}
+  .hwrow{margin-bottom:6px}
+  .hw{min-height:34px;padding:4px 10px}
+  .hwgrp.oct{order:0;flex-basis:auto}
+  .hw-read{line-height:34px}
   .pg{grid-template-columns:repeat(var(--pp,6),1fr)}
   .slot{min-height:42px;padding:6px 8px}
   .slot .sk{display:none}
@@ -350,31 +428,42 @@ button{touch-action:manipulation}
 <body>
 
 
+<div class="splash" id="splash" dir="rtl" aria-hidden="true"><div class="sp-in"><svg class="logo sp-logo" viewBox="0 0 86 60" aria-hidden="true">
+    <rect class="strip" x="1" y="1" width="84" height="11" rx="3"/>
+    <circle class="lamp" cx="9" cy="6.5" r="2.2"/><text class="lt" x="14.5" y="9.4" direction="ltr" text-anchor="start">חמו</text><rect x="62" y="5" width="17" height="3" rx="1.5" fill="var(--primary-ink)" opacity=".55"/>
+    <g transform="translate(1 15)">
+      <rect class="wk" x="0" y="0" width="12" height="43" rx="2"/><rect class="wk" x="12" y="0" width="12" height="43" rx="2"/><rect class="wk" x="24" y="0" width="12" height="43" rx="2"/><rect class="wk" x="36" y="0" width="12" height="43" rx="2"/><rect class="wk" x="48" y="0" width="12" height="43" rx="2"/><rect class="wk" x="60" y="0" width="12" height="43" rx="2"/><rect class="wk" x="72" y="0" width="12" height="43" rx="2"/>
+      <rect class="bk" x="8.3" y="0" width="7.4" height="26" rx="1.5"/><rect class="bk" x="20.3" y="0" width="7.4" height="26" rx="1.5"/><rect class="bk" x="44.3" y="0" width="7.4" height="26" rx="1.5"/><rect class="bk" x="56.3" y="0" width="7.4" height="26" rx="1.5"/><rect class="bk" x="68.3" y="0" width="7.4" height="26" rx="1.5"/>
+    </g>
+  </svg><div class="sp-title">חותך הדגימות</div><div class="sp-sub">עורך דגימות אישי</div><div class="sp-bar"><i></i></div></div></div>
 <header class="apphead" dir="rtl">
   <svg class="logo" viewBox="0 0 86 60" aria-hidden="true">
     <rect class="strip" x="1" y="1" width="84" height="11" rx="3"/>
-    <circle class="lamp" cx="9" cy="6.5" r="2.2"/><rect x="62" y="5" width="17" height="3" rx="1.5" fill="var(--primary-ink)" opacity=".55"/>
+    <circle class="lamp" cx="9" cy="6.5" r="2.2"/><text class="lt" x="14.5" y="9.4" direction="ltr" text-anchor="start">חמו</text><rect x="62" y="5" width="17" height="3" rx="1.5" fill="var(--primary-ink)" opacity=".55"/>
     <g transform="translate(1 15)">
       <rect class="wk" x="0" y="0" width="12" height="43" rx="2"/><rect class="wk" x="12" y="0" width="12" height="43" rx="2"/><rect class="wk" x="24" y="0" width="12" height="43" rx="2"/><rect class="wk" x="36" y="0" width="12" height="43" rx="2"/><rect class="wk" x="48" y="0" width="12" height="43" rx="2"/><rect class="wk" x="60" y="0" width="12" height="43" rx="2"/><rect class="wk" x="72" y="0" width="12" height="43" rx="2"/>
       <rect class="bk" x="8.3" y="0" width="7.4" height="26" rx="1.5"/><rect class="bk" x="20.3" y="0" width="7.4" height="26" rx="1.5"/><rect class="bk" x="44.3" y="0" width="7.4" height="26" rx="1.5"/><rect class="bk" x="56.3" y="0" width="7.4" height="26" rx="1.5"/><rect class="bk" x="68.3" y="0" width="7.4" height="26" rx="1.5"/>
     </g>
   </svg>
-  <h1>חותך הדגימות</h1>
-  <span class="tag">KORG Pa4X</span>
+  <div class="brandtext"><h1>חותך הדגימות</h1><div class="tagline">עורך דגימות אישי</div></div>
 </header>
 
 <div class="app view" id="view-rec" dir="rtl" hidden>
   <section class="step">
     <div class="step-h"><h2>הקלטה</h2><span class="chips" id="recDevChip"></span></div>
-    <div class="recorder">
-      <button class="recbtn" id="recBtn" type="button" aria-label="התחלת הקלטה"><span></span></button>
-      <div class="recmain">
-        <div class="rectop"><span class="recstate" id="recState">לחיצה על הכפתור מתחילה הקלטה</span><span class="rectime" id="recTime">0:00.0</span></div>
+    <div class="recdev">
+      <div class="rd-top"><span class="rd-led" id="recLed" aria-hidden="true"></span><span class="mark">חמו · REC</span><span class="mark rd-fmt ltr" id="recFmt"></span></div>
+      <div class="rd-screen">
+        <div class="rd-row"><span class="recstate" id="recState">לחיצה על הכפתור מתחילה הקלטה</span><span class="rectime" id="recTime">0:00.0</span></div>
+        <canvas class="recwave" id="recWave" aria-label="צורת הגל בזמן ההקלטה"></canvas>
         <div class="meterrow"><span class="cliplamp" id="clipLamp">קליפ</span><div class="meter"><div class="metercover" id="meterCover"></div><div class="meterpeak" id="meterPeak" hidden></div></div><span class="meterdb" id="meterDb">— dB</span></div>
       </div>
+      <div class="rd-ctl">
+        <button class="hw" id="monBtn" type="button" aria-pressed="false">בדיקת עוצמה</button>
+        <button class="recbtn" id="recBtn" type="button" aria-label="התחלת הקלטה"><span></span></button>
+        <span class="rd-grille" aria-hidden="true"></span>
+      </div>
     </div>
-    <canvas class="recwave" id="recWave" aria-label="צורת הגל בזמן ההקלטה"></canvas>
-    <div class="row"><button class="btn sm" id="monBtn" type="button" aria-pressed="false">בדיקת עוצמה בלי להקליט</button></div>
     <p class="hint" id="recBlocked" style="color:var(--bad)" hidden></p>
     <p class="hint">כדאי לכוון את מרחק המיקרופון כך שהנגינה החזקה ביותר תגיע לאזור הצהוב, ולא לאדום.</p>
   </section>
@@ -423,6 +512,7 @@ button{touch-action:manipulation}
     </div>
     <div class="label">מה דגמת?</div>
     <div class="insts" id="insts"></div>
+    <p class="hint">לחיצה ארוכה על כלי פותחת בחירה של מספר השכבות שלו.</p>
     <p class="hint" id="presetSummary"></p>
   </section>
 
@@ -442,7 +532,7 @@ button{touch-action:manipulation}
       <div class="grid" id="atkCtl"></div>
       <p class="hint">כאן מתקנים רק את הקצה הטכני, כדי שלא יהיה קליק של חיתוך. את האופי של המכה עדיף לעצב בכלי, ב-Attack של ה-Amp EG. מדורג = כניסה רכה בשכבה החלשה, וכמעט חדה בחזקה, כדי לשמור על הנקישה של המכה החזקה.</p>
     </div>
-    <p class="hint">רק מה שעובר את קו "סף מכה" בעלייה חדה נחשב מכה. רעש רקע שעולה לאט לא נספר. אפשר לגרור את שני הקווים למעלה ולמטה על צורת הגל.</p>
+    <p class="hint">רק מה שעובר את קו "סף מכה" בעלייה חדה נחשב מכה. רעש רקע שעולה לאט לא נספר. אפשר לגרור את הקווים על צורת הגל: את סף המכה בחצי העליון, ואת סוף הזנב בחצי התחתון.</p>
     <div class="row"><button class="btn sm" id="autoThr" type="button">כיוון ספים אוטומטי לפי הרעש בהקלטה</button><span class="info" id="floorInfo"></span></div>
     <details class="adv" id="detAdv"><summary>כיוון ידני <span class="cnt" id="detCnt"></span></summary><div class="advbody"><div class="grid" id="detCtl"></div></div></details>
   </section>
@@ -568,18 +658,24 @@ button{touch-action:manipulation}
     <div class="dots" id="bankDots"></div>
   </section>
   <section class="step">
-    <div class="soundbar"><div class="cur"><b id="curName">אין סאונד</b><span id="curInfo"></span></div><button class="btn sm" id="fxBtn" type="button" aria-expanded="false">ריוורב וסטריאו</button></div>
+    <div hidden><b id="curName"></b><span id="curInfo"></span></div>
     <div class="fxpanel" id="fxPanel" hidden>
       <div class="chips" id="fxPresets"></div>
       <div class="grid" id="fxCtl"></div>
       <p class="hint">בפריסט "רחב" הצליל היבש זז מעט לצד אחד, וריוורב קצר ומעומעם יוצא מהצד השני. זה הטריק המוכר מההפקות של KSHMR: תחושת מרחב בלי לטשטש את הצליל.</p>
     </div>
-    <div class="plctl">
-      <div class="seg" role="group" aria-label="משטח נגינה"><button type="button" data-pmode="keys">קלידים</button><button type="button" data-pmode="pads">פדים</button></div>
-      <div class="octrow"><button class="btn sm" id="plDown" type="button" aria-label="אוקטבה למטה">−</button><span class="info ltr" id="plRange"></span><button class="btn sm" id="plUp" type="button" aria-label="אוקטבה למעלה">+</button></div>
-      <button class="btn sm" id="plSus" type="button" aria-pressed="false">פדל החזקה</button>
-    </div>
-    <div class="surface" id="surface"><div class="panel-top"><span class="pled" aria-hidden="true"></span><div class="lcd" id="plLast"></div><span class="mark ltr">SAMPLER</span></div><div class="keybed" id="keybed"><div class="pkb" id="pkb"></div></div><div class="padbed" id="padbed" hidden><div class="pads" id="pads"></div></div></div>
+    <div class="surface" id="surface">
+      <div class="panel-top"><span class="pled" aria-hidden="true"></span><span class="mark">חמו · SAMPLER</span><span class="mark ltr" id="scrLat"></span></div>
+      <div class="screen" id="plScreen">
+        <div class="scr-head"><span class="scr-slot ltr" id="scrSlot">P01</span><b id="scrName">אין סאונד</b><span class="scr-kind" id="scrKind"></span></div>
+        <canvas class="scope" id="plScope" aria-hidden="true"></canvas>
+        <div class="scr-foot"><span id="plLast"></span><span class="velbar" title="ולוסיטי"><i id="scrVel"></i></span><span class="scr-tags" id="scrTags"></span></div>
+      </div>
+      <div class="hwrow">
+        <div class="hwgrp" role="group" aria-label="משטח נגינה"><button class="hw" type="button" data-pmode="keys">קלידים</button><button class="hw" type="button" data-pmode="pads">פדים</button></div>
+        <div class="hwgrp oct"><button class="hw" id="plDown" type="button" aria-label="אוקטבה למטה">−</button><span class="hw-read ltr" id="plRange"></span><button class="hw" id="plUp" type="button" aria-label="אוקטבה למעלה">+</button></div>
+        <div class="hwgrp"><button class="hw" id="plSus" type="button" aria-pressed="false">פדל</button><button class="hw" id="fxBtn" type="button" aria-expanded="false">אפקטים</button></div>
+      </div><div class="keybed" id="keybed"><div class="pkb" id="pkb"></div></div><div class="padbed" id="padbed" hidden><div class="pads" id="pads"></div></div></div>
     <details class="adv" id="plAdv"><summary>הגדרות נגינה</summary><div class="advbody">
       <div class="grid">
         <div class="ctl"><label for="plWhites"><span>קלידים במסך</span></label><select id="plWhites"><option value="7">אוקטבה אחת</option><option value="10">אוקטבה וחצי</option><option value="14">שתי אוקטבות</option><option value="21">שלוש אוקטבות</option></select></div>
@@ -640,6 +736,9 @@ const PRESETS={
     plan:{mode:'plan',layers:1,vsplit:'',sortLoud:false},norm:{mode:'trend',strength:100,maxCorr:6,peak:-1},exp:{chans:'keep'}}
 };
 
+const EXTRA={piano:'זנב ארוך',bass:'מונו',guitar:'פריטה וזנב',winds:'התקפה רכה',synth:'זנב ארוך'};
+const DEF_LAYERS=Object.fromEntries(Object.entries(PRESETS).map(([k,p])=>[k,p.plan.layers]));
+function subOf(k){ const n=PRESETS[k].plan.layers; return k==='drums'?`${n===1?'מכה אחת':n+' מכות'} לכל פד`:`${n===1?'שכבה אחת':n+' שכבות'}, ${EXTRA[k]}`; }
 const RISE={piano:10,bass:8,guitar:8,winds:0,drums:14,synth:0}; Object.keys(PRESETS).forEach(k=>PRESETS[k].det.riseDb=RISE[k]);
 const S={
   src:null, isDemo:false, env:null, segs:[], items:[], extra:[], sel:-1, preset:'piano',
@@ -952,12 +1051,26 @@ function applyPreset(k,{keepName=false}={}){
   $('#chans').value=S.exp.chans;
   syncs.forEach(f=>f()); syncNormMode(); buildNorm(); syncPlanUI(); renderInsts(); countChanges();
 }
+function layersSheet(k){
+  const p=PRESETS[k], drum=k==='drums', sh=sheet(`${p.label}: ${drum?'מכות לכל פד':'שכבות ולוסיטי'}`);
+  sh.body.innerHTML=`<p class="hint">${drum?'כמה מכות בעוצמות שונות ניגנת על כל תוף? כל מכה הופכת לשכבת ולוסיטי של אותו פד.':'כמה עוצמות שונות ניגנת על כל תו? למשל חלש, בינוני וחזק הן שלוש שכבות.'}</p><div class="layerpick">${[1,2,3,4,5,6].map(n=>`<button type="button" class="lp" data-n="${n}" aria-pressed="${n===p.plan.layers}">${n}</button>`).join('')}</div><div class="row"><button class="btn" type="button" data-def>חזרה לברירת המחדל (${DEF_LAYERS[k]})</button></div>`;
+  const setN=n=>{ p.plan.layers=n; p.plan.vsplit=''; const o=lsGet('presetLayers',{}); if(n===DEF_LAYERS[k]) delete o[k]; else o[k]=n; lsSet('presetLayers',o);
+    if(S.preset===k){ S.plan.layers=n; S.plan.vsplit=''; S.norm.gaps={}; syncPlanUI(); if(S.src) refresh(); }
+    renderInsts(); sh.close(); toast(`${p.label}: ${subOf(k)}`); };
+  sh.body.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>setN(+b.dataset.n));
+  sh.body.querySelector('[data-def]').onclick=()=>setN(DEF_LAYERS[k]);
+}
 function renderInsts(){
   const h=$('#insts'); if(!h.children.length){
-    Object.entries(PRESETS).forEach(([k,p])=>{ const b=document.createElement('button'); b.type='button'; b.className='inst'; b.dataset.k=k; b.innerHTML=`<span class="ic" aria-hidden="true">${ICONS[k]}</span><b>${p.label}</b><span>${p.sub}</span>`;
-      b.onclick=()=>{ applyPreset(k); if(S.src){ segAndMeasure(); refresh(); } toast('הוגדר פריסט '+p.label); }; h.appendChild(b); });
+    Object.entries(PRESETS).forEach(([k,p])=>{ const b=document.createElement('button'); b.type='button'; b.className='inst'; b.dataset.k=k; b.innerHTML=`<span class="ic" aria-hidden="true">${ICONS[k]}</span><b>${p.label}</b><span class="sub"></span>`;
+      let lpT=0, lp=false, x0=0, y0=0;
+      b.addEventListener('pointerdown',e=>{ lp=false; x0=e.clientX; y0=e.clientY; clearTimeout(lpT); lpT=setTimeout(()=>{ lp=true; if(navigator.vibrate) try{ navigator.vibrate(15); }catch(_){} layersSheet(k); },550); });
+      b.addEventListener('pointermove',e=>{ if(Math.abs(e.clientX-x0)+Math.abs(e.clientY-y0)>12) clearTimeout(lpT); });
+      ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>clearTimeout(lpT)));
+      b.addEventListener('contextmenu',e=>e.preventDefault());
+      b.onclick=()=>{ if(lp){ lp=false; return; } applyPreset(k); if(S.src){ segAndMeasure(); refresh(); } toast('הוגדר פריסט '+p.label); }; h.appendChild(b); });
   }
-  [...h.children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===S.preset));
+  [...h.children].forEach(b=>{ b.setAttribute('aria-pressed',b.dataset.k===S.preset); b.querySelector('.sub').textContent=subOf(b.dataset.k); });
   const p=P(), nmN={natural:'עוצמה טבעית',trend:'יישור בתוך שכבה',designed:'פערים מתוכננים',each:'כל דגימה לשיא'}[p.norm.mode];
   $('#presetSummary').textContent=`${p.label}: ${p.plan.layers===1?'שכבה אחת':p.plan.layers+' שכבות'} · ${nmN} · זנב עד ${p.det.maxLen} שנ׳ · ${p.exp.chans==='mono'?'ייצוא במונו':'ערוצים כמו המקור'}. אפשר לשנות כל דבר בשלבים הבאים, ו"איפוס לפריסט" מחזיר לערכים האלה.`;
 }
@@ -1025,12 +1138,13 @@ function drawWave(){
   g.fill();
   S._wg={mid,amp,H};
   const ly=L=>Math.max(0,(L+WR)/WR)*amp;
-  const band=(L,col,dash,label)=>{ const y=ly(L); g.setLineDash(dash); g.strokeStyle=col; g.lineWidth=1.6; [mid-y,mid+y].forEach(yy=>{ g.beginPath(); g.moveTo(0,yy); g.lineTo(W,yy); g.stroke(); }); g.setLineDash([]);
+  const band=(L,col,dash,label,top)=>{ const y=ly(L); g.setLineDash(dash); g.strokeStyle=col; g.lineWidth=1.6; [mid-y,mid+y].forEach(yy=>{ g.beginPath(); g.moveTo(0,yy); g.lineTo(W,yy); g.stroke(); }); g.setLineDash([]);
     g.font='600 11px Assistant, sans-serif'; g.direction='rtl'; g.textAlign='right'; g.textBaseline='middle';
-    for(let x=W-8;x>0;x-=380){ const tw=g.measureText(label).width+14; g.fillStyle=col; g.beginPath(); if(g.roundRect) g.roundRect(x-tw,mid-y-9,tw,18,9); else g.rect(x-tw,mid-y-9,tw,18); g.fill(); g.fillStyle=css('--scr-bg'); g.fillText(label,x-7,mid-y+0.5);
-      g.fillStyle=col; g.beginPath(); g.arc(x-tw-8,mid+y,5,0,7); g.fill(); } };
-  band(S.det.offRel,css('--scr-ink'),[5,4],'סוף זנב');
-  band(S.det.thrRel,css('--accent'),[],'סף מכה');
+    const ly0=top?Math.max(9,mid-y):Math.min(H-9,mid+y);
+    for(let x=W-8;x>0;x-=380){ const tw=g.measureText(label).width+14; g.fillStyle=col; g.beginPath(); if(g.roundRect) g.roundRect(x-tw,ly0-9,tw,18,9); else g.rect(x-tw,ly0-9,tw,18); g.fill(); g.fillStyle=css('--scr-bg'); g.fillText(label,x-7,ly0+0.5);
+      g.fillStyle=col; g.beginPath(); g.arc(x-tw-9,ly0,5,0,7); g.fill(); } };
+  band(S.det.offRel,css('--scr-ink'),[5,4],'סוף זנב',false);
+  band(S.det.thrRel,css('--accent'),[],'סף מכה',true);
   g.font='500 10.5px "IBM Plex Mono", monospace'; g.textBaseline='top'; g.direction='ltr'; g.textAlign='left';
   S.segs.forEach(s=>{ const it=byseg.get(s); const w=X(s.e)-X(s.s); let t=it?nName(it.midi)+' V'+it.layer:(s.keep?'?':'×'); if(w<g.measureText(t).width+4) t=it?'V'+it.layer:t; if(w<14) return;
     g.fillStyle=it&&s.keep?layerColor(it.layer,N):css('--scr-wave'); g.fillText(t,X(s.s)+2,1); });
@@ -1408,8 +1522,8 @@ function init(){
   { const cv=$('#wave'); let drag=null, skip=false;
     const yOf=e=>{ const r=cv.getBoundingClientRect(); return (e.clientY-r.top)*(S._wg.H/r.height); };
     const ly=L=>Math.max(0,(L+WR)/WR)*S._wg.amp;
-    cv.addEventListener('pointerdown',e=>{ if(!S._wg) return; const dy=Math.abs(yOf(e)-S._wg.mid), dT=Math.abs(dy-ly(S.det.thrRel)), dO=Math.abs(dy-ly(S.det.offRel));
-      if(Math.min(dT,dO)<=16){ drag=dT<=dO?'thrRel':'offRel'; skip=true; try{ cv.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault(); } });
+    cv.addEventListener('pointerdown',e=>{ if(!S._wg) return; const y=yOf(e), top=y<S._wg.mid, dy=Math.abs(y-S._wg.mid), nT=Math.abs(dy-ly(S.det.thrRel))<=16, nO=Math.abs(dy-ly(S.det.offRel))<=16;
+      if(nT||nO){ drag=nT&&nO?(top?'thrRel':'offRel'):(nT?'thrRel':'offRel'); skip=true; try{ cv.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault(); } });
     cv.addEventListener('pointermove',e=>{ if(!drag) return; let L=Math.round(Math.abs(yOf(e)-S._wg.mid)/S._wg.amp*WR-WR);
       L=drag==='thrRel'?Math.max(-70,Math.min(-6,Math.max(L,S.det.offRel+6))):Math.max(-90,Math.min(-15,Math.min(L,S.det.thrRel-6)));
       if(L!==S.det[drag]){ S.det[drag]=L; drawWave(); syncs.forEach(f=>f()); countChanges(); reanalyzeSoon(); } });
@@ -1713,7 +1827,7 @@ const Rec=(()=>{
     catch(e){ stream=null; if(e&&e.name==='OverconstrainedError'&&dev){ $('#recDev').value=''; toast('המקור שנבחר לא זמין. עברתי לברירת המחדל.'); return open(); } blocked(e&&e.name); return false; }
     $('#recBlocked').hidden=true;
     const ctx=ac(), tr=stream.getAudioTracks()[0]; trackInfo={label:tr.label,s:tr.getSettings?tr.getSettings():{}};
-    showApplied(); listDevices();
+    showApplied(); listDevices(); { const st=trackInfo.s||{}; $('#recFmt').textContent=`${((st.sampleRate||rate())/1000).toFixed(1)}kHz · ${(st.channelCount||1)>=2?'ST':'MONO'}`; }
     srcN=ctx.createMediaStreamSource(stream); tap=await makeTap(ctx); sink=ctx.createGain(); sink.gain.value=0;
     srcN.connect(tap); tap.connect(sink); sink.connect(ctx.destination);
     tr.onended=()=>{ if(state==='rec') stop(); else { state='idle'; close(); ui(); } toast('מקור הקלט נותק'); };
@@ -1740,7 +1854,7 @@ const Rec=(()=>{
     const cv=$('#recWave'), W=cv.clientWidth, H=cv.clientHeight; if(!W) return; const dpr=window.devicePixelRatio||1;
     if(cv.width!==Math.round(W*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
     const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
-    const n=Math.floor(W/3), arr=live.slice(-n); g.fillStyle=css(state==='rec'?'--bad':'--scr-wave');
+    const n=Math.floor(W/3), arr=live.slice(-n); g.fillStyle=css(state==='rec'?'--bad':'--lcd-ink');
     arr.forEach((v,i)=>{ const h=Math.max(1,pct(v)/100*(H-8)); g.fillRect(W-(arr.length-i)*3,(H-h)/2,2,h); });
   }
   function loop(){ cancelAnimationFrame(raf); const step=()=>{ draw(); lvl*=0.86; if(performance.now()-holdT>1200) hold*=0.94; if(stream) raf=requestAnimationFrame(step); else { lvl=0; hold=0; draw(); } }; raf=requestAnimationFrame(step); }
@@ -1748,7 +1862,7 @@ const Rec=(()=>{
     const b=$('#recBtn'), busy=state==='rec'||state==='armed';
     b.classList.toggle('on',busy); b.classList.toggle('armed',state==='armed'); b.setAttribute('aria-label',busy?'עצירה ושמירה':'התחלת הקלטה');
     $('#recState').textContent={idle:'לחיצה על הכפתור מתחילה הקלטה',mon:'בדיקת עוצמה. לא מקליט.',armed:'מחכה לצליל. ההקלטה תתחיל לבד.',rec:'מקליט. לחיצה נוספת עוצרת ושומרת.'}[state];
-    const m=$('#monBtn'); m.setAttribute('aria-pressed',state==='mon'); m.disabled=busy; m.textContent=state==='mon'?'עצירת הבדיקה':'בדיקת עוצמה בלי להקליט';
+    const m=$('#monBtn'); m.setAttribute('aria-pressed',state==='mon'); m.disabled=busy; m.textContent=state==='mon'?'עצירת בדיקה':'בדיקת עוצמה'; const led=$('#recLed'); led.classList.toggle('rec',state==='rec'); led.classList.toggle('mon',state==='mon'||state==='armed');
   }
   async function start(){ stopPreview(); if(!(await open())) return; chunks=[]; frames=0; ring=[]; ringF=0; live=[]; hold=0; state=o().arm?'armed':'rec'; ui(); }
   async function toggleMon(){ if(state==='mon'){ state='idle'; close(); ui(); return; } if(state!=='idle') return; if(!(await open())) return; live=[]; frames=0; state='mon'; ui(); }
@@ -1906,7 +2020,7 @@ const Player=(()=>{
   function graph(){ if(master) return; const c=ac();
     const sh=c.createWaveShaper(), n=4096, cur=new Float32Array(n);
     for(let i=0;i<n;i++){ const x=i/(n-1)*2-1, a=Math.abs(x); cur[i]=a<=0.8?x:Math.sign(x)*(0.8+0.2*Math.tanh((a-0.8)/0.2)); }
-    sh.curve=cur; sh.oversample='none'; master=c.createGain(); master.gain.value=0.8; master.connect(sh); sh.connect(c.destination); }
+    sh.curve=cur; sh.oversample='none'; master=c.createGain(); master.gain.value=0.8; an=c.createAnalyser(); an.fftSize=2048; master.connect(sh); sh.connect(an); an.connect(c.destination); }
   let warmT=0;
   function prewarm(snd){ clearTimeout(warmT); if(!snd) return; chainFor(snd); let i=0; const step=()=>{ const t0=performance.now(); while(i<snd.samples.length&&performance.now()-t0<12){ sbuf(snd,i); i++; } if(i<snd.samples.length&&P.cur===snd) warmT=setTimeout(step,0); }; warmT=setTimeout(step,0); }
   function makeIR(type,decay){
@@ -1950,13 +2064,13 @@ const Player=(()=>{
     src.connect(g); g.connect(ch.input); src.start(); held.add(m);
     const v={src,g}; voices.set(m,v); requestAnimationFrame(()=>{ if(voices.get(m)===v) mark(m,true,i); });
     src.onended=()=>{ if(voices.get(m)===v){ voices.delete(m); mark(m,false); } };
-    const lbl=`${esc(s.name||nName(s.root))} <span class="ln">${nName(m)} · vel ${vel}</span>`; requestAnimationFrame(()=>{ const l=$('#plLast'); l.dataset.played='1'; l.innerHTML=lbl; });
+    const lbl=`<span class="ltr">${nName(m)}</span> <span class="ln">· vel ${vel} ·</span> ${esc(s.name||nName(s.root))}`; requestAnimationFrame(()=>{ const l=$('#plLast'); l.dataset.played='1'; l.innerHTML=lbl; $('#scrVel').style.width=(vel/127*100)+'%'; });
   }
   function noteOff(m,force){ held.delete(m); const snd=P.cur;
     if(!force&&(P.sustain||(snd&&snd.kind==='kit'))){ mark(m,false); return; }
     const v=voices.get(m); if(!v) return; fadeV(v,0.22); voices.delete(m); mark(m,false); }
   function allOff(){ [...voices.values()].forEach(v=>fadeV(v,0.05)); voices.clear(); held.clear(); document.querySelectorAll('#pkb .on,#pads .on').forEach(e=>e.classList.remove('on')); }
-  function setSus(on){ P.sustain=on; $('#plSus').setAttribute('aria-pressed',on); if(!on) [...voices.keys()].forEach(m=>{ if(!held.has(m)&&P.cur&&P.cur.kind!=='kit') noteOff(m,true); }); }
+  function setSus(on){ P.sustain=on; $('#plSus').setAttribute('aria-pressed',on); renderScreen(); if(!on) [...voices.keys()].forEach(m=>{ if(!held.has(m)&&P.cur&&P.cur.kind!=='kit') noteOff(m,true); }); }
   const slotVar=i=>'--v'+(i%6+1);
   function mark(m,on,i){ const el=document.querySelector(`#${P.mode==='pads'?'pads':'pkb'} [data-m="${m}"]`); if(!el) return; el.classList.toggle('on',on);
     if(on&&P.cur){ const s=P.cur.samples[i]; const L=P.cur.samples.length>1&&s.vhi-s.vlo<100?Math.round((s.vhi/127)*5):3; el.style.setProperty('--on',`var(--v${Math.max(1,Math.min(6,L+1))})`); } }
@@ -1998,10 +2112,30 @@ const Player=(()=>{
   }
 
   /* ----- current sound + effects ----- */
-  function renderCur(){ const s=P.cur; $('#curName').textContent=s?s.name:'אין סאונד';
+  function renderScreen(){ const s=P.cur, idx=s?P.slots.indexOf(s.id):-1;
+    $('#scrSlot').textContent='P'+String(idx>=0?idx+1:0).padStart(2,'0');
+    $('#scrName').textContent=s?s.name:'אין סאונד';
+    $('#scrKind').textContent=s?(s.kind==='kit'?`ערכה · ${s.samples.length}`:plural(s.samples.length,'דגימה אחת','דגימות')):'';
+    const t=[]; if(s){ if(s.fx.rev>0) t.push('REV '+Math.round(s.fx.rev)); if(s.fx.spread>0) t.push('WIDE'); } if(P.sustain) t.push('SUS');
+    $('#scrTags').innerHTML=t.map(x=>`<span class="ltr">${x}</span>`).join('');
+    if(!$('#plLast').dataset.played) $('#plLast').textContent=s?(P.mode==='pads'?'מצב פדים':'מצב קלידים'):'בחירת משבצת למעלה'; }
+  let an=null, scopeOn=false, scopeBuf=null, idleFrames=0;
+  function scopeLoop(){ if(!scopeOn) return; requestAnimationFrame(scopeLoop);
+    const cv=$('#plScope'), W=cv.clientWidth, H=cv.clientHeight; if(!W) return; const dpr=window.devicePixelRatio||1;
+    if(cv.width!==Math.round(W*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); idleFrames=0; }
+    const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0);
+    let pk=0; if(an){ if(!scopeBuf) scopeBuf=new Float32Array(an.fftSize); an.getFloatTimeDomainData(scopeBuf); for(let i=0;i<scopeBuf.length;i++){ const v=scopeBuf[i]<0?-scopeBuf[i]:scopeBuf[i]; if(v>pk) pk=v; } }
+    if(pk<1e-4){ if(idleFrames++>2) return; } else idleFrames=0;
+    g.clearRect(0,0,W,H); g.strokeStyle='rgba(242,179,90,.18)'; g.lineWidth=1; g.beginPath(); g.moveTo(0,H/2); g.lineTo(W,H/2); g.stroke();
+    if(pk<1e-4||!scopeBuf) return;
+    let st=0; for(let i=1;i<scopeBuf.length/2;i++){ if(scopeBuf[i-1]<0&&scopeBuf[i]>=0){ st=i; break; } }
+    const n=Math.min(scopeBuf.length-st,512), sc=(H/2-3)/Math.max(0.25,pk);
+    g.strokeStyle=css('--lcd-ink'); g.lineWidth=1.6; g.shadowColor='rgba(242,179,90,.6)'; g.shadowBlur=6; g.beginPath();
+    for(let i=0;i<n;i++){ const x=i/(n-1)*W, y=H/2-scopeBuf[st+i]*sc; i?g.lineTo(x,y):g.moveTo(x,y); } g.stroke(); g.shadowBlur=0; }
+  function renderCur(){ const s=P.cur; renderScreen(); $('#curName').textContent=s?s.name:'אין סאונד';
     $('#curInfo').textContent=s?(s.kind==='kit'?`ערכת תופים · ${plural(s.samples.length,'צליל אחד','צלילים')}`:`${plural(s.samples.length,'דגימה אחת','דגימות')}${s.demo?' · דוגמה':''}`):'בחירת משבצת למעלה, או הוספה מהספרייה';
     $('#fxBtn').disabled=!s; if(!s) $('#fxPanel').hidden=true; }
-  function fxChanged(){ const s=P.cur; if(!s) return; if(chains.has(s.id)) applyFx(s,chains.get(s.id)); clearTimeout(fxT); fxT=setTimeout(()=>Lib.saveFx(s),500); markPreset(); }
+  function fxChanged(){ const s=P.cur; if(!s) return; if(chains.has(s.id)) applyFx(s,chains.get(s.id)); clearTimeout(fxT); fxT=setTimeout(()=>Lib.saveFx(s),500); markPreset(); renderScreen(); }
   function markPreset(){ const f=P.cur&&P.cur.fx; document.querySelectorAll('#fxPresets [data-fx]').forEach(b=>b.setAttribute('aria-pressed',!!f&&f.preset===b.dataset.fx)); }
   function mkRange(host,o){ const id='fx_'+o.k, w=document.createElement('div'); w.className='ctl';
     w.innerHTML=`<label for="${id}"><span>${o.label}</span><output class="ltr"></output></label><input type="range" id="${id}" min="${o.min}" max="${o.max}" step="${o.step}">${o.sub?`<span class="sub">${o.sub}</span>`:''}`;
@@ -2027,7 +2161,7 @@ const Player=(()=>{
 
   /* ----- playing surface ----- */
   function renderSurface(){
-    const pads=P.mode==='pads'; $('#keybed').hidden=pads; $('#padbed').hidden=!pads; if(!$('#plLast').dataset.played) $('#plLast').innerHTML=P.cur?`${esc(P.cur.name)} <span class="ln">· ${pads?'פדים':'קלידים'}</span>`:'אין סאונד';
+    const pads=P.mode==='pads'; $('#keybed').hidden=pads; $('#padbed').hidden=!pads; renderScreen();
     document.querySelectorAll('[data-pmode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pmode===P.mode));
     const kit=P.cur&&P.cur.kind==='kit'; $('#plDown').disabled=$('#plUp').disabled=pads&&kit;
     if(pads) renderPads(); else renderKeys();
@@ -2082,15 +2216,18 @@ const Player=(()=>{
     document.addEventListener('keyup',e=>{ const i=QW.indexOf(e.key.toLowerCase()); if(i<0) return; const mm=P.base+i; if(down.delete(mm)) noteOff(mm); });
     Lib.sub(()=>{ let ch=false; P.slots=P.slots.map(id=>{ if(id&&!Lib.sound(id)){ ch=true; return null; } return id; }); if(ch) saveSlots();
       if(P.cur&&!Lib.sound(P.cur.id)){ select(Lib.sound(P.slots.find(Boolean))||null); return; } renderBank(); renderCur(); });
-    App.on('play',()=>{ renderBank(); renderSurface(); const c=ac(); const lat=((c.baseLatency||0)+(c.outputLatency||0))*1000; $('#plLat').textContent=lat?`השהיה משוערת: ${Math.round(lat)} ms`:''; });
-    App.on('leave:play',allOff); prewarm(P.cur);
+    App.on('play',()=>{ renderBank(); renderSurface(); const c=ac(); const lat=((c.baseLatency||0)+(c.outputLatency||0))*1000; $('#plLat').textContent=lat?`השהיה משוערת: ${Math.round(lat)} ms`:''; $('#scrLat').textContent=lat?Math.round(lat)+' ms':''; if(!scopeOn){ scopeOn=true; idleFrames=0; scopeLoop(); } });
+    App.on('leave:play',()=>{ allOff(); scopeOn=false; }); prewarm(P.cur);
     renderBank(); renderCur(); renderFx(); renderSurface();
   }
   return {init,midi,place,setSlots,select};
 })();
 
 /* ---------- boot ---------- */
+function hideSplash(){ const el=$('#splash'); if(!el||el.classList.contains('out')) return; el.classList.add('out'); setTimeout(()=>el.remove(),450); }
+setTimeout(hideSplash,5000);
 async function boot(){
+  Object.entries(lsGet('presetLayers',{})).forEach(([k,n])=>{ if(PRESETS[k]&&n>=1&&n<=6){ PRESETS[k].plan.layers=n; PRESETS[k].plan.vsplit=''; } });
   init(); sliceExtras();
   App.on('slice',()=>{ if(S.src){ $('#rangeKb').dataset.range=''; $('#playKb').dataset.range=''; refresh(false); } });
   document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>App.go(b.dataset.tab));
@@ -2107,6 +2244,7 @@ async function boot(){
   }
   await Player.init(); Rec.init();
   App.go(lsGet('tab','play'));
+  setTimeout(hideSplash,Math.max(0,1200-performance.now()));
 }
 boot();
 

@@ -1,6 +1,6 @@
 // Offline support: the app works without internet after the first visit.
 // Raise the version number whenever the files change, so phones pick up the new version.
-const CACHE = 'slicer-v4';
+const CACHE = 'slicer-v5';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 
 self.addEventListener('install', e => {
