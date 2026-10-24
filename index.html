@@ -247,6 +247,18 @@ button{touch-action:manipulation}
 .maplist div{display:flex;justify-content:space-between;gap:12px;min-width:0}
 .maplist div span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .maplist div span:last-child{flex:none;color:var(--muted)}
+.spd-body{background:linear-gradient(180deg,#2e2829,#151112);border:1px solid var(--body-edge);border-radius:16px;padding:12px;direction:ltr}
+.spd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.spd-pad{position:relative;height:74px;border-radius:10px;border:1px solid #4d4244;background:linear-gradient(180deg,#3d3436,#262021);color:var(--body-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px;cursor:pointer;font:inherit;box-shadow:0 3px 0 #0b0909;min-width:0}
+.spd-pad.small{height:46px}
+.spd-pad .pn{position:absolute;top:4px;left:7px;font:600 10px var(--f-mono);color:var(--body-dim)}
+.spd-pad b{font-size:12.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:rtl}
+.spd-pad small{font:500 9.5px var(--f-mono);color:var(--lcd-ink);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spd-pad.small small{display:none}
+.spd-pad.empty{background:#1b1617;border-style:dashed}
+.spd-pad.empty b{color:var(--body-dim);font-weight:500}
+.spd-pad.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),0 3px 0 #0b0909}
+.spd-pool{max-height:30vh;overflow:auto}
 .picklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .pick{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:10px 12px;text-align:start;font:inherit;color:inherit;cursor:pointer;display:flex;flex-direction:column;gap:2px}
 .pick span{font-size:12.5px;color:var(--muted)}
@@ -395,18 +407,31 @@ button{touch-action:manipulation}
 .lp-grid{display:grid;grid-template-columns:54px repeat(16,minmax(14px,1fr));gap:2px;min-width:318px;user-select:none;-webkit-user-select:none}
 .lp-grid .ln{font:600 10.5px var(--f-body);color:var(--body-dim);direction:rtl;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;align-self:center;padding-inline-end:6px}
 .lp-grid .ln.off{opacity:.4}
-.lp-grid .c{height:26px;border-radius:4px;background:#2a2325;cursor:pointer;box-shadow:inset 0 1px 0 rgb(255 255 255/.04);touch-action:manipulation}
-.lp-grid .c.q{background:#352d2f}
+.lp-grid .c{height:26px;border-radius:4px;background:linear-gradient(to top,var(--lc) calc(var(--vv,0)*100%),var(--cb,#2a2325) 0);cursor:pointer;box-shadow:inset 0 1px 0 rgb(255 255 255/.04);touch-action:manipulation}
+.lp-grid .c.q{--cb:#352d2f}
 .lp-grid .c.g4,.lp-grid .hd.g4{margin-left:4px}
-.lp-grid .c.v1{background:color-mix(in srgb,var(--lc) 55%,#2a2325)}
-.lp-grid .c.v2{background:var(--lc)}
-.lp-grid .c.v3{background:var(--lc);box-shadow:0 0 8px var(--lc),inset 0 0 0 2px rgb(255 255 255/.55)}
+.lp-grid .c.v3{box-shadow:0 0 8px var(--lc),inset 0 0 0 1px rgb(255 255 255/.5)}
 .lp-grid .c.now{outline:2px solid var(--lcd-ink);outline-offset:-1px}
 .lp-grid .hd{height:6px;border-radius:2px;background:#3a2f30}
 .lp-grid .hd.now{background:var(--lcd-ink);box-shadow:0 0 6px var(--lcd-ink)}
 .lp-saverow{display:flex;gap:6px;align-items:center}
 .lp-saverow input{flex:1;min-width:0;background:var(--lcd-bg);color:var(--lcd-ink);border:1px solid #3a2a1a;font:500 14px var(--f-body)}
 .lp-hint{margin:0;font-size:12.5px;color:var(--body-dim)}
+.lp-level input{width:110px;accent-color:var(--accent)}
+.lp-level .hw-read{min-width:52px}
+.looper.full{position:fixed;inset:0;z-index:40;border-radius:0;border:0;overflow-y:auto;padding:max(10px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.looper.full .lp-gridwrap{padding:10px}
+.looper.full .lp-grid{grid-template-columns:52px repeat(16,minmax(14px,1fr));gap:3px;min-width:0}
+.looper.full .lp-grid .c{height:clamp(28px,calc((100vh - 560px)/8),56px)}
+.looper.full .lp-grid .ln{font-size:12px}
+@media (orientation:landscape){
+  .looper.full{display:grid;grid-template-columns:minmax(250px,30%) 1fr;grid-auto-rows:min-content;column-gap:14px;align-content:start}
+  .looper.full>*{grid-column:1}
+  .looper.full .lp-gridwrap{grid-column:2;grid-row:1 / span 30;align-self:start}
+  .looper.full .lp-grid .c{height:clamp(22px,calc((100vh - 70px)/8 - 4px),64px)}
+  .looper.full .lp-screen,.looper.full .lp-hint{display:none}
+  .looper.full .lp-presets{flex-wrap:wrap}
+}
 .panel-top .mark+.mark{margin-inline-start:auto;font-family:var(--f-mono);letter-spacing:.04em}
 .screen{background:var(--lcd-bg);border:1px solid #000;border-radius:12px;padding:8px 12px;margin-bottom:10px;box-shadow:inset 0 2px 8px rgb(0 0 0/.85),0 1px 0 rgb(255 255 255/.06);display:flex;flex-direction:column;gap:6px;font-family:var(--f-mono);color:var(--lcd-ink)}
 .scr-head{display:flex;align-items:center;gap:10px;min-width:0}
@@ -734,18 +759,20 @@ button{touch-action:manipulation}
   </section>
   <section class="step devsec">
     <div class="device looper" id="looper">
-      <div class="dev-top"><span class="pled lp-run" id="lpLed" aria-hidden="true"></span><span class="mark">LOOPER</span><span class="mark ltr" id="lpStepNo">00 / 16</span></div>
+      <div class="dev-top"><span class="pled lp-run" id="lpLed" aria-hidden="true"></span><span class="mark">LOOPER</span><span class="mark ltr" id="lpStepNo">00 / 16</span><span class="hwgrp"><button class="hw sm" id="lpFull" type="button" aria-pressed="false">מסך מלא</button></span></div>
       <div class="screen lp-screen"><div class="scr-head"><b id="lpName">—</b><span class="scr-kind" id="lpInfo"></span></div></div>
       <div class="hwrow">
         <button class="hw lp-play" id="lpPlay" type="button" aria-pressed="false">הפעלה</button>
         <div class="hwgrp"><button class="hw" id="lpSlower" type="button" aria-label="קצב איטי יותר">−</button><span class="hw-read ltr" id="lpBpm">100 BPM</span><button class="hw" id="lpFaster" type="button" aria-label="קצב מהיר יותר">+</button></div>
       </div>
       <div class="hwrow" id="lpMelOpts"><div class="hwgrp"><span class="lp-lbl">סולם</span><select class="hwsel" id="lpScale" aria-label="סולם"></select></div><button class="hw" id="lpFollow" type="button" aria-pressed="true">עוקב אחרי הקליד</button></div>
+      <div class="hwrow lp-velrow"><div class="hwgrp" role="group" aria-label="עוצמת המשבצת"><span class="lp-lbl">עוצמה</span><button class="hw" type="button" data-pen="45">חלש</button><button class="hw" type="button" data-pen="80">בינוני</button><button class="hw" type="button" data-pen="115">חזק</button></div>
+        <div class="hwgrp lp-level"><span class="lp-lbl">עוצמת הלופ</span><input type="range" id="lpLevel" min="0" max="100" step="1" aria-label="עוצמת הלופ"><span class="hw-read ltr" id="lpLevelO"></span></div></div>
       <div class="lp-presets" id="lpPresets"></div>
       <div class="lp-gridwrap"><div class="lp-grid" id="lpGrid"></div></div>
       <div class="hwrow"><div class="hwgrp"><button class="hw" id="lpClear" type="button">ניקוי</button><button class="hw" id="lpSave" type="button">שמירה כפריסט שלי</button></div><button class="hw" id="lpDel" type="button" hidden>מחיקת הפריסט</button></div>
       <div class="lp-saverow" id="lpSaveRow" hidden><input type="text" id="lpSaveName" aria-label="שם הפריסט" maxlength="24"><button class="hw" id="lpSaveOk" type="button">שמירה</button><button class="hw" id="lpSaveCancel" type="button">ביטול</button></div>
-      <p class="lp-hint">לחיצה על משבצת מוסיפה מכה, לחיצה נוספת מדגישה אותה, ולחיצה שלישית מוחקת. בסאונד מנוגן הלופ מתנגן מהקליד האחרון שלחצת עליו.</p>
+      <p class="lp-hint">בוחרים עוצמה, חלש, בינוני או חזק, ולוחצים על משבצות. גובה הצבע במשבצת מראה את העוצמה. לחיצה על משבצת באותה עוצמה מוחקת אותה. בסאונד מנוגן הלופ מתנגן מהקליד האחרון שלחצת עליו.</p>
     </div>
   </section>
 </div>
@@ -1846,6 +1873,8 @@ function sliceExtras(){
   b.onclick=async()=>{ const nm=(S.exp.name||P().name||'סאונד חדש'); const snd=soundFromSlicer(nm); if(!snd){ toast('אין דגימות לשמור'); return; }
     b.disabled=true; await Lib.addSound(snd); Player.place(snd.id); b.disabled=false;
     const pr=$('#expProg'); pr.innerHTML='נשמר בספרייה ✓ '; const go=document.createElement('button'); go.type='button'; go.className='btn sm'; go.textContent='מעבר לנגן'; go.onclick=()=>App.go('play'); pr.appendChild(go); };
+  const sp=document.createElement('button'); sp.type='button'; sp.className='btn'; sp.textContent='ערכה לרולנד SPD'; row.insertBefore(sp,$('#expProg'));
+  sp.onclick=()=>{ const snd=soundFromSlicer(S.exp.name||P().name||'KIT'); if(!snd){ toast('אין דגימות'); return; } snd.id='tmp'; spdBuilder(snd); };
   const fr=document.createElement('button'); fr.type='button'; fr.className='btn'; fr.textContent='מההקלטות שלי'; $('#demoBtn').parentElement.insertBefore(fr,$('#demoBtn'));
   fr.onclick=()=>{ const sh=sheet('בחירת הקלטה לחיתוך'); const list=Lib.recs();
     if(!list.length){ sh.body.innerHTML='<p class="hint">עוד אין הקלטות. אפשר להקליט במסך ההקלטה, או לבחור כאן קובץ.</p>'; return; }
@@ -2005,7 +2034,7 @@ const Rec=(()=>{
     if(kind==='recs'){
       mk('לחיתוך',()=>{ App.go('slice'); sliceLoadData(it.name,it.sr,it.ch.map(fromI16)); },'primary');
       mk('לסאונד בודד',async()=>{ const snd=await Lib.addSound({name:it.name,kind:'pitched',samples:[{root:60,klo:0,khi:127,vlo:1,vhi:127,tune:0,sr:it.sr,ch:it.ch,name:it.name}],fx:defFx('room')}); Player.place(snd.id); toast('נוצר סאונד והוצב בנגן'); });
-    } else mk('לנגן',()=>{ Player.place(it.id); App.go('play'); },'primary');
+    } else { mk('לנגן',()=>{ Player.place(it.id); App.go('play'); },'primary'); mk('ערכה לרולנד SPD',()=>spdBuilder(it)); }
     mk('שינוי שם',()=>rename(d,it,kind));
     const del=mk('מחיקה',()=>{
       if(del.dataset.sure){ kind==='recs'?Lib.delRec(it.id):Lib.delSound(it.id); toast('נמחק'); return; }
@@ -2179,8 +2208,8 @@ const Player=(()=>{
     {id:'octbass',name:'באס אוקטבות',type:'mel',bpm:118,rows:{0:'x.x.x.x.x.x.x.x.',7:'.o.o.o.o.o.o.o.o'}},
     {id:'stabs',name:'אקורדים',type:'mel',bpm:96,rows:{0:'x..x..x...x.x...',2:'x..x..x...x.x...',4:'x..x..x...x.x...'}}
   ];
-  const parsePat=v=>typeof v==='string'?[...v.padEnd(16,'.').slice(0,16)].map(ch=>ch==='X'?127:ch==='x'?100:ch==='o'?70:0):v.slice(0,16);
-  const L={on:false,bpm:100,presetId:'',type:'drum',scale:lsGet('lpScale','major'),follow:lsGet('lpFollow',true),root:60,rows:{},edited:false,user:[]};
+  const parsePat=v=>typeof v==='string'?[...v.padEnd(16,'.').slice(0,16)].map(ch=>ch==='X'?115:ch==='x'?80:ch==='o'?45:0):v.slice(0,16);
+  const L={pen:lsGet('lpPen',80),level:lsGet('lpLevel',70),on:false,bpm:100,presetId:'',type:'drum',scale:lsGet('lpScale','major'),follow:lsGet('lpFollow',true),root:60,rows:{},edited:false,user:[]};
   let lpTimer=0,lpNext=0,lpStep=0,lpQ=[],lpRaf=0,lpCur=-1;
   const allPresets=()=>LP_BUILTIN.concat(L.user);
   function roleNote(r){ const sd=P.cur; if(!sd||sd.kind!=='kit') return null; const roots=[...new Set(sd.samples.map(x=>x.root))].sort((a,b)=>a-b);
@@ -2191,7 +2220,7 @@ const Player=(()=>{
   function syncLoopType(){ const want=P.cur&&P.cur.kind==='kit'?'drum':'mel'; if(L.type!==want||!L.presetId){ const p=allPresets().find(x=>x.type===want); if(p) loadLoop(p); } else renderLoop(); }
   function trig(snd,m,vel,when,gate){ const i=pick(snd,m,vel); if(i<0) return; const sm=snd.samples[i], c=ac(), ch=chainFor(snd);
     const src=c.createBufferSource(); src.buffer=sbuf(snd,i); const semis=snd.kind==='kit'?0:(m-sm.root)+(sm.tune||0)/100; src.playbackRate.value=Math.pow(2,semis/12);
-    const g=c.createGain(), span=sm.vhi-sm.vlo, gv=span>100?lin(-(1-vel/127)*18):lin(-(1-Math.max(0,Math.min(1,(vel-sm.vlo)/Math.max(1,span))))*6);
+    const g=c.createGain(), span=sm.vhi-sm.vlo, lv=Math.pow(L.level/100,1.6), gv=lv*(span>100?lin(-(1-vel/127)*26):lin(-(1-Math.max(0,Math.min(1,(vel-sm.vlo)/Math.max(1,span))))*10));
     g.gain.setValueAtTime(gv,when); src.connect(g); g.connect(ch.input); src.start(when);
     if(gate>0){ g.gain.setValueAtTime(gv,when+gate); g.gain.linearRampToValueAtTime(0,when+gate+0.06); src.stop(when+gate+0.08); }
     else src.stop(when+Math.min(src.buffer.duration/src.playbackRate.value,4)+0.01);
@@ -2211,6 +2240,7 @@ const Player=(()=>{
     $('#lpInfo').textContent=L.type==='drum'?'מקצב תופים':`${SCALES[L.scale].n} · מ-${nName(L.root)}`;
     $('#lpBpm').textContent=L.bpm+' BPM'; $('#lpMelOpts').hidden=L.type!=='mel';
     $('#lpFollow').setAttribute('aria-pressed',L.follow); $('#lpScale').value=L.scale;
+    document.querySelectorAll('[data-pen]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.pen===L.pen)); $('#lpLevel').value=L.level; $('#lpLevelO').textContent=L.level+'%';
     const ph=$('#lpPresets'); ph.innerHTML=''; allPresets().filter(x=>x.type===L.type).forEach(x=>{ const b=document.createElement('button'); b.type='button'; b.className='hw'+(x.user?' mine':''); b.textContent=x.name; b.setAttribute('aria-pressed',x.id===L.presetId); b.onclick=()=>loadLoop(x); ph.appendChild(b); });
     $('#lpDel').hidden=!(p&&p.user); renderLpGrid(); }
   function renderLpGrid(){
@@ -2219,9 +2249,9 @@ const Player=(()=>{
     for(let i=0;i<16;i++){ const h=document.createElement('span'); h.className='hd'+(i%4===0&&i?' g4':''); h.dataset.i=i; g.appendChild(h); }
     ls.forEach((ln,r)=>{ const lab=document.createElement('span'); lab.className='ln'+(ln.ok?'':' off'); lab.textContent=ln.label; g.appendChild(lab);
       const row=L.rows[ln.k]||new Array(16).fill(0); const col=`var(--v${(r%6)+1})`;
-      for(let i=0;i<16;i++){ const c=document.createElement('span'); const v=row[i]; c.className='c'+(i%4===0?' q':'')+(i%4===0&&i?' g4':'')+(v>=127?' v3':v>=100?' v2':v>0?' v1':''); c.style.setProperty('--lc',col); c.dataset.k=ln.k; c.dataset.i=i; g.appendChild(c); } });
+      for(let i=0;i<16;i++){ const c=document.createElement('span'); const v=row[i]; c.className='c'+(i%4===0?' q':'')+(i%4===0&&i?' g4':'')+(v>=110?' v3':''); c.style.setProperty('--lc',col); if(v) c.style.setProperty('--vv',(0.3+0.7*v/127).toFixed(2)); c.title=v?('ולוסיטי '+v):''; c.dataset.k=ln.k; c.dataset.i=i; g.appendChild(c); } });
     if(lpCur>=0) markStep(lpCur); }
-  function lpToggle(k,i){ if(!L.rows[k]) L.rows[k]=new Array(16).fill(0); const v=L.rows[k][i]; L.rows[k][i]=v===0?100:v<127?127:0; L.edited=true;
+  function lpToggle(k,i){ if(!L.rows[k]) L.rows[k]=new Array(16).fill(0); const v=L.rows[k][i]; L.rows[k][i]=v===L.pen?0:L.pen; L.edited=true;
     if(L.rows[k][i]&&!L.on&&P.cur){ const m=L.type==='drum'?roleNote(k):L.root+SCALES[L.scale].iv[+k]; if(m!=null) trig(P.cur,m,L.rows[k][i],ac().currentTime+0.01,L.type==='drum'?0:0.25); }
     renderLoop(); }
   const saveUser=()=>DB.put('meta',{k:'loops',v:L.user});
@@ -2229,6 +2259,15 @@ const Player=(()=>{
     const m=await DB.get('meta','loops'); if(m&&Array.isArray(m.v)) L.user=m.v.map(x=>Object.assign(x,{user:true}));
     $('#lpScale').innerHTML=Object.entries(SCALES).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('');
     $('#lpPlay').onclick=()=>L.on?lpStop():lpStart();
+    document.querySelectorAll('[data-pen]').forEach(b=>b.onclick=()=>{ L.pen=+b.dataset.pen; lsSet('lpPen',L.pen); renderLoop(); });
+    $('#lpLevel').oninput=e=>{ L.level=+e.target.value; lsSet('lpLevel',L.level); $('#lpLevelO').textContent=L.level+'%'; };
+    const full=on=>{ const el=$('#looper'); el.classList.toggle('full',on); $('#lpFull').setAttribute('aria-pressed',on); $('#lpFull').textContent=on?'יציאה':'מסך מלא'; document.body.style.overflow=on?'hidden':'';
+      if(on){ try{ const r=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); if(r&&r.then) r.then(()=>{ try{ screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{}); }catch(_){} }).catch(()=>{}); }catch(_){} }
+      else if(document.fullscreenElement){ try{ document.exitFullscreen(); }catch(_){} } };
+    $('#lpFull').onclick=()=>full(!$('#looper').classList.contains('full'));
+    document.addEventListener('fullscreenchange',()=>{ if(!document.fullscreenElement&&$('#looper').classList.contains('full')) full(false); });
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('#looper').classList.contains('full')) full(false); });
+    App.on('leave:play',()=>{ if($('#looper').classList.contains('full')) full(false); });
     $('#lpSlower').onclick=()=>{ L.bpm=Math.max(50,L.bpm-2); L.edited=true; renderLoop(); };
     $('#lpFaster').onclick=()=>{ L.bpm=Math.min(200,L.bpm+2); L.edited=true; renderLoop(); };
     $('#lpScale').onchange=e=>{ L.scale=e.target.value; lsSet('lpScale',L.scale); renderLoop(); };
@@ -2395,6 +2434,58 @@ const Player=(()=>{
   }
   return {init,midi,place,setSlots,select};
 })();
+
+/* ---------- Roland SPD pad builder ---------- */
+const SPD_MODELS={sxpro:{n:'SPD-SX PRO',sr:48000,bits:24,note:'מקבל WAV של 16 או 24 ביט, ב-44.1 או 48kHz.'},sx:{n:'SPD-SX',sr:44100,bits:16,note:'מקבל רק WAV של 16 ביט ב-44.1kHz.'}};
+const SPD_POS=['עליון שמאל','עליון אמצע','עליון ימין','אמצע שמאל','מרכז','אמצע ימין','תחתון שמאל','תחתון אמצע','תחתון ימין'];
+const ROLE_EN=[[/קיק|kick|\bbd\b/i,'KICK'],[/סנר|snare|\bsd\b/i,'SNARE'],[/מחיאה|clap/i,'CLAP'],[/פתוח|open/i,'OHAT'],[/האט|hat|\bhh\b/i,'HAT'],[/טום|tom/i,'TOM'],[/קראש|crash/i,'CRASH'],[/ראייד|ride/i,'RIDE'],[/רים|rim/i,'RIM'],[/שייקר|shak/i,'SHAKER'],[/טמבורין|tamb/i,'TAMB']];
+function spdFileName(n,label){ let en=''; for(const [re,t] of ROLE_EN) if(re.test(label||'')){ en=t; break; } if(!en){ en=String(label||'').replace(/[^A-Za-z0-9 _-]/g,'').trim().toUpperCase(); } return (String(n).padStart(2,'0')+' '+(en||'PAD')).slice(0,16).trim(); }
+function spdBuilder(snd){
+  const pool=[]; (snd?[snd]:Lib.sounds()).forEach(sd=>sd.samples.forEach((sm,i)=>pool.push({sd,i,sm,label:sm.name||nName(sm.root),from:sd.name})));
+  if(!pool.length){ toast('אין דגימות לבנות מהן ערכה'); return; }
+  const pads=new Array(9).fill(null);
+  const auto=()=>{ const tops=new Map(); pool.forEach(p=>{ const k=p.sd.id+'|'+p.sm.root; const cur=tops.get(k); if(!cur||p.sm.vhi>cur.sm.vhi) tops.set(k,p); }); const list=[...tops.values()];
+    const pr=p=>{ const l=p.label; return /קיק|kick/i.test(l)?0:/סנר|snare/i.test(l)?1:/מחיאה|clap/i.test(l)?2:/האט|hat/i.test(l)?3:/טום|tom/i.test(l)?4:5; };
+    list.sort((a,b)=>pr(a)-pr(b)||a.sm.root-b.sm.root); const order=[6,7,8,3,4,5,0,1,2]; pads.fill(null); list.slice(0,9).forEach((p,k)=>pads[order[k]]=p); };
+  auto(); let sel=6, model=lsGet('spdModel','sxpro');
+  const sh=sheet('בניית ערכה לרולנד SPD'), b=sh.body;
+  b.innerHTML=`<div class="seg" role="group" aria-label="דגם">${Object.entries(SPD_MODELS).map(([k,m])=>`<button type="button" data-spd="${k}"><span class="ltr">${m.n}</span></button>`).join('')}</div>
+    <p class="hint" id="spdNote"></p>
+    <div class="spd-body"><div class="spd-grid" id="spdGrid"></div></div>
+    <div class="row"><button class="btn sm" type="button" id="spdAuto">סידור אוטומטי</button><button class="btn sm" type="button" id="spdClear">ריקון הפד הנבחר</button></div>
+    <div class="label" id="spdPick"></div><div class="picklist spd-pool" id="spdPool"></div>
+    <div class="ctl"><label for="spdName"><span>שם הערכה (באותיות לטיניות)</span></label><input type="text" id="spdName" class="ltr" maxlength="16"></div>
+    <div class="row"><button class="btn primary" type="button" id="spdGo">שמירת ZIP לערכה</button><span class="progress" id="spdProg"></span></div>
+    <p class="hint">ב-SPD אין דרך לייבא ערכה שלמה עם שיוך לפדים מקובץ חיצוני. לכן ה-ZIP כולל תיקייה של קבצים ממוספרים לפי הפדים. מעתיקים את התיקייה לדיסק און קי, ובמכשיר מייבאים את כולה בבת אחת: WAVE, IMPORT, CHECK ALL. אחר כך משייכים כל קובץ לפד עם אותו מספר, לפי הקובץ PADS.txt.</p>`;
+  b.querySelector('#spdName').value=((snd&&snd.name)||'MYKIT').replace(/[^A-Za-z0-9_-]/g,'').toUpperCase().slice(0,16)||'MYKIT';
+  const render=()=>{ b.querySelectorAll('[data-spd]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.spd===model)); b.querySelector('#spdNote').textContent=SPD_MODELS[model].note;
+    const g=b.querySelector('#spdGrid'); g.innerHTML='';
+    pads.forEach((p,i)=>{ const d=document.createElement('button'); d.type='button'; d.className='spd-pad'+(i<3?' small':'')+(i===sel?' sel':'')+(p?'':' empty'); d.innerHTML=`<span class="pn ltr">${i+1}</span><b></b><small></small>`; d.querySelector('b').textContent=p?p.label:'ריק'; d.querySelector('small').textContent=p?spdFileName(i+1,p.label):SPD_POS[i];
+      d.onclick=()=>{ sel=i; if(p){ stopAll(); playChans(p.sm.ch.map(fromI16),p.sm.sr); } render(); }; g.appendChild(d); });
+    b.querySelector('#spdPick').textContent=`בחירת דגימה לפד ${sel+1} (${SPD_POS[sel]})`;
+    const pl=b.querySelector('#spdPool'); pl.innerHTML='';
+    pool.forEach(p=>{ const x=document.createElement('button'); x.type='button'; x.className='pick'+(pads[sel]===p?' cur':''); x.innerHTML=`<b></b><span></span>`; x.querySelector('b').textContent=p.label; x.querySelector('span').textContent=p.from;
+      x.onclick=()=>{ pads[sel]=p; stopAll(); playChans(p.sm.ch.map(fromI16),p.sm.sr); const nx=pads.findIndex((q,k)=>!q&&k!==sel); if(nx>=0) sel=nx; render(); }; pl.appendChild(x); }); };
+  b.querySelectorAll('[data-spd]').forEach(x=>x.onclick=()=>{ model=x.dataset.spd; lsSet('spdModel',model); render(); });
+  b.querySelector('#spdAuto').onclick=()=>{ auto(); render(); };
+  b.querySelector('#spdClear').onclick=()=>{ pads[sel]=null; render(); };
+  b.querySelector('#spdName').oninput=e=>{ e.target.value=e.target.value.replace(/[^A-Za-z0-9_-]/g,'').toUpperCase(); };
+  b.querySelector('#spdGo').onclick=async()=>{ const pr=b.querySelector('#spdProg'), m=SPD_MODELS[model], kit=(b.querySelector('#spdName').value||'MYKIT');
+    if(!pads.some(Boolean)){ pr.textContent='אין דגימות בפדים'; return; }
+    const files=[], lines=[`${kit} · ${m.n}`,'',`פד  מיקום         קובץ               דגימה`];
+    for(let i=0;i<9;i++){ const p=pads[i]; if(!p) { lines.push(`${String(i+1).padStart(2)}  ${SPD_POS[i]}  (ריק)`); continue; }
+      pr.textContent=`מעבד פד ${i+1}…`; await nextFrame();
+      let ch=p.sm.ch.map(fromI16); if(p.sm.sr!==m.sr) ch=await resample(ch,p.sm.sr,m.sr);
+      const fn=spdFileName(i+1,p.label); files.push({name:`${kit}/${fn}.wav`,data:encodeWav(ch,m.sr,m.bits,p.sm.root)});
+      lines.push(`${String(i+1).padStart(2)}  ${SPD_POS[i]}  ${fn}.wav  ${p.label} (${p.from})`); }
+    lines.push('','ייבוא: מעתיקים את התיקייה לדיסק און קי, ובמכשיר: WAVE, IMPORT, בוחרים את התיקייה, CHECK ALL ואז IMPORT.','אחר כך משייכים לכל פד את הקובץ שמתחיל במספר שלו.');
+    files.push({name:`${kit}/PADS.txt`,data:new TextEncoder().encode('\ufeff'+lines.join('\r\n'))});
+    const zip=makeZip(files), dl=await dlP;
+    try{ if(!dl){ const url=URL.createObjectURL(zip), a=document.createElement('a'); a.href=url; a.download=`${kit}_SPD.zip`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),60000); pr.textContent='ההורדה התחילה ✓'; }
+      else { pr.textContent='ממתין לאישור השמירה…'; await dl.save({filename:`${kit}_SPD.zip`,data:zip}); pr.textContent='נשמר ✓'; } }
+    catch(err){ pr.textContent=err&&err.code==='declined'?'השמירה בוטלה.':'השמירה לא הצליחה כאן.'; } };
+  render();
+}
 
 /* ---------- boot ---------- */
 function hideSplash(){ const el=$('#splash'); if(!el||el.classList.contains('out')) return; el.classList.add('out'); setTimeout(()=>el.remove(),450); }
